@@ -2,6 +2,8 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 
 const AppContext = createContext();
 
+const API_BASE = (import.meta.env.VITE_API_URL || 'https://api.vexta.nexusec.space').replace(/\/$/, '');
+
 export function AppProvider({ children }) {
   const [bridgeName, setBridgeName] = useState('Vexta Bridge');
   const [bridgeDescription, setBridgeDescription] = useState('A privacy-first, zero-knowledge Vexta relay bridge.');
@@ -23,7 +25,7 @@ export function AppProvider({ children }) {
     async function fetchBridgeData() {
       try {
         // 1. Fetch System Info
-        const infoRes = await fetch('/api/info/');
+        const infoRes = await fetch(`${API_BASE}/api/info/`);
         if (infoRes.ok) {
           const info = await infoRes.json();
           setBridgeName(info.bridge_name || 'Vexta Bridge');
@@ -42,7 +44,7 @@ export function AppProvider({ children }) {
         }
 
         // 2. Fetch Client Downloads Registry
-        const dlRes = await fetch('/api/downloads/');
+        const dlRes = await fetch(`${API_BASE}/api/downloads/`);
         if (dlRes.ok) {
           const dlData = await dlRes.json();
           setClientDownloads(dlData.downloads || []);
@@ -51,7 +53,7 @@ export function AppProvider({ children }) {
         }
 
         // 3. Fetch Announcements Feed
-        const annRes = await fetch('/api/announcements/');
+        const annRes = await fetch(`${API_BASE}/api/announcements/`);
         if (annRes.ok) {
           const annData = await annRes.json();
           setAnnouncements(annData.announcements || []);
@@ -83,7 +85,8 @@ export function AppProvider({ children }) {
         clientDownloads,
         olderDownloads,
         latestClientVersion,
-        loading
+        loading,
+        apiBaseUrl: API_BASE
       }}
     >
       {children}
