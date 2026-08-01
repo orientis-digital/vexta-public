@@ -2,7 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 
 const AppContext = createContext();
 
-const API_BASE = (import.meta.env.VITE_API_URL || 'https://api.vexta.nexusec.space').replace(/\/$/, '');
+const API_BASE = (import.meta.env.VITE_API_URL || 'https://vexta-api.nexusec.space').replace(/\/$/, '');
 
 export function AppProvider({ children }) {
   const [bridgeName, setBridgeName] = useState('Vexta Bridge');
