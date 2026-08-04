@@ -23,7 +23,7 @@ export default function Navbar() {
           {/* Logo Branding */}
           <NavLink to="/" onClick={() => setMobileOpen(false)} className="flex items-center gap-3 no-underline group cursor-pointer">
             <div className="relative w-10 h-10 border border-[#5F7057]/30 rounded-xl flex items-center justify-center bg-[#5F7057]/5 shadow-[0_0_5px_rgba(95,112,87,0.3)] group-hover:shadow-[0_0_15px_rgba(95,112,87,0.4)] group-hover:border-[#D97706] transition-all duration-300 select-none p-1.5 overflow-hidden">
-              <img src="/img/orientis-logo.png" alt="Orientis Digital Logo" className="w-full h-full object-contain" />
+              <img src="/img/vexta-logo.png" alt="Vexta Logo" className="w-full h-full object-contain rounded-lg" />
             </div>
             <div className="flex flex-col justify-center">
               <div className="flex items-center">

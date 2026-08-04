@@ -34,7 +34,7 @@ export default function Footer() {
           <div className="flex flex-col text-sm gap-4">
             <NavLink to="/" className="flex items-center gap-3 no-underline group cursor-pointer self-start">
               <div className="relative w-9 h-9 border border-[#5F7057]/30 rounded-xl flex items-center justify-center bg-[#5F7057]/5 shadow-tech-sm group-hover:shadow-tech group-hover:border-[#D97706] transition-all duration-300 p-1.5 overflow-hidden">
-                <img src="/img/orientis-logo.png" alt="Orientis Digital Logo" className="w-full h-full object-contain" />
+                <img src="/img/vexta-logo.png" alt="Vexta Logo" className="w-full h-full object-contain rounded-lg" />
               </div>
               <div className="flex flex-col justify-center">
                 <div className="flex items-center">
