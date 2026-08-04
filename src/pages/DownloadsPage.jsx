@@ -406,113 +406,158 @@ export default function DownloadsPage() {
         {tab === 'linux' && (
           <div className="flex flex-col gap-8 animate-in fade-in duration-200">
             {linuxDownloads.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {/* 1. AppImage */}
-                <div className="glass-panel p-6 rounded-3xl flex flex-col gap-5 border border-white/10 shadow-xl">
-                  <div className="flex items-center justify-between border-b border-white/10 pb-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-[#5F7057]/20 border border-[#5F7057]/40 flex items-center justify-center text-[#D6C5B3] text-xl">
-                        <i className="fa-solid fa-box"></i>
-                      </div>
-                      <div>
-                        <h2 className="text-sm font-extrabold uppercase tracking-wider text-white font-mono">AppImage</h2>
-                        <span className="text-[10px] font-mono text-[#7C8775] uppercase">Standalone Linux Executable</span>
+              <div className="flex flex-col gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  {/* 1. AppImage */}
+                  <div className="glass-panel p-6 rounded-3xl flex flex-col gap-5 border border-white/10 shadow-xl">
+                    <div className="flex items-center justify-between border-b border-white/10 pb-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-[#5F7057]/20 border border-[#5F7057]/40 flex items-center justify-center text-[#D6C5B3] text-xl">
+                          <i className="fa-solid fa-box"></i>
+                        </div>
+                        <div>
+                          <h2 className="text-sm font-extrabold uppercase tracking-wider text-white font-mono">AppImage</h2>
+                          <span className="text-[10px] font-mono text-[#7C8775] uppercase">Standalone Linux Executable</span>
+                        </div>
                       </div>
                     </div>
+                    {latestAppImage ? (
+                      <div
+                        onClick={() => triggerDownload(latestAppImage)}
+                        className="glass-panel p-5 rounded-2xl flex flex-col gap-4 border border-[#5F7057]/40 bg-[#5F7057]/5 hover:border-[#5F7057] hover:bg-[#5F7057]/15 transition-all duration-300 group cursor-pointer shadow-lg"
+                      >
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="text-xs font-extrabold text-white uppercase tracking-wider truncate" title={latestAppImage.filename}>
+                            {latestAppImage.filename}
+                          </span>
+                          <span className="bg-[#5F7057] text-white px-2 py-0.5 rounded text-[9px] font-mono font-bold">
+                            v{latestAppImage.version}
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between text-[10px] font-mono text-gray-300 border-t border-white/10 pt-3">
+                          <span className="bg-black/40 border border-white/10 px-2 py-0.5 rounded text-gray-300">{latestAppImage.size}</span>
+                          <span className="text-[#D6C5B3] uppercase font-bold">DOWNLOAD</span>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="p-4 text-xs font-mono text-gray-400 text-center border border-dashed border-white/10 rounded-xl">No AppImage build</div>
+                    )}
                   </div>
-                  {latestAppImage ? (
-                    <div
-                      onClick={() => triggerDownload(latestAppImage)}
-                      className="glass-panel p-5 rounded-2xl flex flex-col gap-4 border border-[#5F7057]/40 bg-[#5F7057]/5 hover:border-[#5F7057] hover:bg-[#5F7057]/15 transition-all duration-300 group cursor-pointer shadow-lg"
-                    >
-                      <div className="flex items-center justify-between gap-2">
-                        <span className="text-xs font-extrabold text-white uppercase tracking-wider truncate" title={latestAppImage.filename}>
-                          {latestAppImage.filename}
-                        </span>
-                        <span className="bg-[#5F7057] text-white px-2 py-0.5 rounded text-[9px] font-mono font-bold">
-                          v{latestAppImage.version}
-                        </span>
-                      </div>
-                      <div className="flex items-center justify-between text-[10px] font-mono text-gray-300 border-t border-white/10 pt-3">
-                        <span className="bg-black/40 border border-white/10 px-2 py-0.5 rounded text-gray-300">{latestAppImage.size}</span>
-                        <span className="text-[#D6C5B3] uppercase font-bold">DOWNLOAD</span>
+
+                  {/* 2. Debian Package (.deb) */}
+                  <div className="glass-panel p-6 rounded-3xl flex flex-col gap-5 border border-white/10 shadow-xl">
+                    <div className="flex items-center justify-between border-b border-white/10 pb-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-[#D97706]/20 border border-[#D97706]/40 flex items-center justify-center text-[#D97706] text-xl">
+                          <i className="fa-brands fa-[#D97706] fa-debian"></i>
+                        </div>
+                        <div>
+                          <h2 className="text-sm font-extrabold uppercase tracking-wider text-white font-mono">Debian Package (.DEB)</h2>
+                          <span className="text-[10px] font-mono text-[#7C8775] uppercase">Ubuntu / Debian / Parrot OS</span>
+                        </div>
                       </div>
                     </div>
-                  ) : (
-                    <div className="p-4 text-xs font-mono text-gray-400 text-center border border-dashed border-white/10 rounded-xl">No AppImage build</div>
-                  )}
+                    {latestDeb ? (
+                      <div
+                        onClick={() => triggerDownload(latestDeb)}
+                        className="glass-panel p-5 rounded-2xl flex flex-col gap-4 border border-[#D97706]/40 bg-[#D97706]/5 hover:border-[#D97706] hover:bg-[#D97706]/15 transition-all duration-300 group cursor-pointer shadow-lg"
+                      >
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="text-xs font-extrabold text-white uppercase tracking-wider truncate" title={latestDeb.filename}>
+                            {latestDeb.filename}
+                          </span>
+                          <span className="bg-[#D97706] text-white px-2 py-0.5 rounded text-[9px] font-mono font-bold">
+                            v{latestDeb.version}
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between text-[10px] font-mono text-gray-300 border-t border-white/10 pt-3">
+                          <span className="bg-black/40 border border-white/10 px-2 py-0.5 rounded text-gray-300">{latestDeb.size}</span>
+                          <span className="text-[#D97706] uppercase font-bold">DOWNLOAD</span>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="p-4 text-xs font-mono text-gray-400 text-center border border-dashed border-white/10 rounded-xl">No .DEB build</div>
+                    )}
+                  </div>
+
+                  {/* 3. Tarball Archive (.tar.gz) */}
+                  <div className="glass-panel p-6 rounded-3xl flex flex-col gap-5 border border-white/10 shadow-xl">
+                    <div className="flex items-center justify-between border-b border-white/10 pb-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-white/10 border border-white/20 flex items-center justify-center text-white text-xl">
+                          <i className="fa-solid fa-file-archive"></i>
+                        </div>
+                        <div>
+                          <h2 className="text-sm font-extrabold uppercase tracking-wider text-white font-mono">Tarball (.TAR.GZ)</h2>
+                          <span className="text-[10px] font-mono text-[#7C8775] uppercase">Generic Linux Archive</span>
+                        </div>
+                      </div>
+                    </div>
+                    {latestTarGz ? (
+                      <div
+                        onClick={() => triggerDownload(latestTarGz)}
+                        className="glass-panel p-5 rounded-2xl flex flex-col gap-4 border border-white/20 bg-white/5 hover:border-white/40 hover:bg-white/10 transition-all duration-300 group cursor-pointer shadow-lg"
+                      >
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="text-xs font-extrabold text-white uppercase tracking-wider truncate" title={latestTarGz.filename}>
+                            {latestTarGz.filename}
+                          </span>
+                          <span className="bg-white/20 text-white px-2 py-0.5 rounded text-[9px] font-mono font-bold">
+                            v{latestTarGz.version}
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between text-[10px] font-mono text-gray-300 border-t border-white/10 pt-3">
+                          <span className="bg-black/40 border border-white/10 px-2 py-0.5 rounded text-gray-300">{latestTarGz.size}</span>
+                          <span className="text-white uppercase font-bold">DOWNLOAD</span>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="p-4 text-xs font-mono text-gray-400 text-center border border-dashed border-white/10 rounded-xl">No .TAR.GZ build</div>
+                    )}
+                  </div>
                 </div>
 
-                {/* 2. Debian Package (.deb) */}
-                <div className="glass-panel p-6 rounded-3xl flex flex-col gap-5 border border-white/10 shadow-xl">
-                  <div className="flex items-center justify-between border-b border-white/10 pb-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-[#D97706]/20 border border-[#D97706]/40 flex items-center justify-center text-[#D97706] text-xl">
-                        <i className="fa-brands fa-[#D97706] fa-debian"></i>
-                      </div>
-                      <div>
-                        <h2 className="text-sm font-extrabold uppercase tracking-wider text-white font-mono">Debian Package (.DEB)</h2>
-                        <span className="text-[10px] font-mono text-[#7C8775] uppercase">Ubuntu / Debian / Parrot OS</span>
-                      </div>
-                    </div>
+                {/* All Linux Builds Inventory */}
+                <div className="glass-panel p-6 rounded-3xl flex flex-col gap-4 border border-white/10">
+                  <div className="flex items-center justify-between border-b border-white/10 pb-3">
+                    <h3 className="text-xs font-mono uppercase tracking-wider text-[#D6C5B3] font-bold flex items-center gap-2">
+                      <i className="fa-solid fa-list-check text-[#5F7057]"></i> All Linux Build Artifacts ({linuxDownloads.length})
+                    </h3>
+                    <span className="text-[9px] font-mono text-[#7C8775] uppercase">COMPLETE REPOSITORY</span>
                   </div>
-                  {latestDeb ? (
-                    <div
-                      onClick={() => triggerDownload(latestDeb)}
-                      className="glass-panel p-5 rounded-2xl flex flex-col gap-4 border border-[#D97706]/40 bg-[#D97706]/5 hover:border-[#D97706] hover:bg-[#D97706]/15 transition-all duration-300 group cursor-pointer shadow-lg"
-                    >
-                      <div className="flex items-center justify-between gap-2">
-                        <span className="text-xs font-extrabold text-white uppercase tracking-wider truncate" title={latestDeb.filename}>
-                          {latestDeb.filename}
-                        </span>
-                        <span className="bg-[#D97706] text-white px-2 py-0.5 rounded text-[9px] font-mono font-bold">
-                          v{latestDeb.version}
-                        </span>
-                      </div>
-                      <div className="flex items-center justify-between text-[10px] font-mono text-gray-300 border-t border-white/10 pt-3">
-                        <span className="bg-black/40 border border-white/10 px-2 py-0.5 rounded text-gray-300">{latestDeb.size}</span>
-                        <span className="text-[#D97706] uppercase font-bold">DOWNLOAD</span>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="p-4 text-xs font-mono text-gray-400 text-center border border-dashed border-white/10 rounded-xl">No .DEB build</div>
-                  )}
-                </div>
 
-                {/* 3. Tarball Archive (.tar.gz) */}
-                <div className="glass-panel p-6 rounded-3xl flex flex-col gap-5 border border-white/10 shadow-xl">
-                  <div className="flex items-center justify-between border-b border-white/10 pb-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-white/10 border border-white/20 flex items-center justify-center text-white text-xl">
-                        <i className="fa-solid fa-file-archive"></i>
+                  <div className="flex flex-col gap-2">
+                    {linuxDownloads.map((dl) => (
+                      <div
+                        key={dl.filename}
+                        className="flex items-center justify-between bg-[#0C0E0B]/60 border border-white/5 hover:border-white/20 p-3.5 rounded-xl transition-all text-xs font-mono"
+                      >
+                        <div className="flex items-center gap-3 min-w-0">
+                          <span className="text-[#5F7057] font-extrabold text-[11px] w-12 shrink-0">v{dl.version}</span>
+                          <span className="text-gray-200 truncate text-[11px] font-bold" title={dl.filename}>
+                            {dl.filename}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-3 shrink-0">
+                          <span className="text-[#7C8775] text-[10px] hidden sm:inline">{dl.size}</span>
+                          {dl.sha256 && (
+                            <button
+                              onClick={(e) => copyHashToClipboard(dl.sha256, dl.filename, e)}
+                              className="text-[8px] font-bold uppercase text-gray-400 hover:text-white bg-white/5 px-2 py-1 rounded border border-white/10 cursor-pointer"
+                            >
+                              {copiedHash === dl.filename ? 'COPIED' : 'HASH'}
+                            </button>
+                          )}
+                          <button
+                            onClick={() => triggerDownload(dl)}
+                            className="px-3 py-1 text-[9px] font-bold uppercase border border-[#5F7057] text-[#D6C5B3] hover:bg-[#5F7057] hover:text-white rounded transition-all cursor-pointer"
+                          >
+                            GET
+                          </button>
+                        </div>
                       </div>
-                      <div>
-                        <h2 className="text-sm font-extrabold uppercase tracking-wider text-white font-mono">Tarball (.TAR.GZ)</h2>
-                        <span className="text-[10px] font-mono text-[#7C8775] uppercase">Generic Linux Archive</span>
-                      </div>
-                    </div>
+                    ))}
                   </div>
-                  {latestTarGz ? (
-                    <div
-                      onClick={() => triggerDownload(latestTarGz)}
-                      className="glass-panel p-5 rounded-2xl flex flex-col gap-4 border border-white/20 bg-white/5 hover:border-white/40 hover:bg-white/10 transition-all duration-300 group cursor-pointer shadow-lg"
-                    >
-                      <div className="flex items-center justify-between gap-2">
-                        <span className="text-xs font-extrabold text-white uppercase tracking-wider truncate" title={latestTarGz.filename}>
-                          {latestTarGz.filename}
-                        </span>
-                        <span className="bg-white/20 text-white px-2 py-0.5 rounded text-[9px] font-mono font-bold">
-                          v{latestTarGz.version}
-                        </span>
-                      </div>
-                      <div className="flex items-center justify-between text-[10px] font-mono text-gray-300 border-t border-white/10 pt-3">
-                        <span className="bg-black/40 border border-white/10 px-2 py-0.5 rounded text-gray-300">{latestTarGz.size}</span>
-                        <span className="text-white uppercase font-bold">DOWNLOAD</span>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="p-4 text-xs font-mono text-gray-400 text-center border border-dashed border-white/10 rounded-xl">No .TAR.GZ build</div>
-                  )}
                 </div>
               </div>
             ) : (
