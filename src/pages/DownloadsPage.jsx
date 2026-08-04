@@ -31,7 +31,11 @@ export default function DownloadsPage() {
       origin: { y: 0.75 },
       colors: ['#D97706', '#5F7057', '#D6C5B3']
     });
-    alert(`Initiating download for ${dl.filename} (${dl.size})\n\nRelease Version: v${dl.version}\nSHA-256 Hash:\n${dl.sha256}`);
+    if (dl.url) {
+      window.open(dl.url, '_blank');
+    } else if (dl.platform_key) {
+      window.open(`https://downloads.nexusec.space/api/v1/vexta/download/${dl.platform_key}`, '_blank');
+    }
   };
 
   const copyHashToClipboard = (hash, filename, e) => {

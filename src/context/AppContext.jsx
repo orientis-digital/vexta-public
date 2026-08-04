@@ -3,6 +3,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 const AppContext = createContext();
 
 const API_BASE = (import.meta.env.VITE_API_URL || 'https://vexta-api.nexusec.space').replace(/\/$/, '');
+const DOWNLOAD_API_BASE = (import.meta.env.VITE_DOWNLOAD_API_URL || 'https://downloads.nexusec.space').replace(/\/$/, '');
 
 export function AppProvider({ children }) {
   const [bridgeName, setBridgeName] = useState('Vexta Bridge');
@@ -24,7 +25,7 @@ export function AppProvider({ children }) {
   useEffect(() => {
     async function fetchBridgeData() {
       try {
-        // 1. Fetch System Info
+        // 1. Fetch System Info from Vexta API
         const infoRes = await fetch(`${API_BASE}/api/info/`);
         if (infoRes.ok) {
           const info = await infoRes.json();
@@ -43,13 +44,52 @@ export function AppProvider({ children }) {
           }
         }
 
-        // 2. Fetch Client Downloads Registry
-        const dlRes = await fetch(`${API_BASE}/api/downloads/`);
-        if (dlRes.ok) {
-          const dlData = await dlRes.json();
-          setClientDownloads(dlData.downloads || []);
-          setOlderDownloads(dlData.older_downloads || []);
-          setLatestClientVersion(dlData.latest_version || null);
+        // 2. Fetch Client Downloads using Centralized Standardized Downloads API
+        try {
+          const dlRes = await fetch(`${DOWNLOAD_API_BASE}/api/v1/vexta/latest`);
+          if (dlRes.ok) {
+            const dlData = await dlRes.json();
+            setLatestClientVersion(dlData.latest_version || '2.0.0');
+
+            if (dlData.artifacts && Object.keys(dlData.artifacts).length > 0) {
+              const list = Object.values(dlData.artifacts).map((art) => ({
+                filename: art.filename,
+                version: dlData.latest_version || '2.0.0',
+                platform_key: art.platform || 'windows',
+                key: art.key,
+                size: art.size_human || '15 MB',
+                sha256: art.sha256 || (dlData.checksums ? dlData.checksums.sha256 : ''),
+                url: art.url,
+                format: art.format || '',
+                arch: art.arch || 'x64'
+              }));
+              setClientDownloads(list);
+            } else if (dlData.downloads && Object.keys(dlData.downloads).length > 0) {
+              const list = Object.entries(dlData.downloads).map(([key, url]) => ({
+                filename: url.split('/').pop(),
+                version: dlData.latest_version || '2.0.0',
+                platform_key: key.startsWith('windows') ? 'windows' : key.startsWith('linux') ? 'linux' : key.startsWith('macos') ? 'macos' : 'windows',
+                key: key,
+                size: '15 MB',
+                sha256: (dlData.checksums && (dlData.checksums[key + '_sha256'] || dlData.checksums.sha256)) || '',
+                url: url,
+                format: key,
+                arch: 'x64'
+              }));
+              setClientDownloads(list);
+            }
+          } else {
+            throw new Error('Downloads server response not OK');
+          }
+        } catch (dlErr) {
+          console.warn('Centralized downloads server unreachable, falling back to bridge API:', dlErr);
+          const dlRes = await fetch(`${API_BASE}/api/downloads/`);
+          if (dlRes.ok) {
+            const dlData = await dlRes.json();
+            setClientDownloads(dlData.downloads || []);
+            setOlderDownloads(dlData.older_downloads || []);
+            setLatestClientVersion(dlData.latest_version || null);
+          }
         }
 
         // 3. Fetch Announcements Feed
@@ -59,7 +99,7 @@ export function AppProvider({ children }) {
           setAnnouncements(annData.announcements || []);
         }
       } catch (err) {
-        console.error('Error fetching data from Vexta Bridge API:', err);
+        console.error('Error fetching data from Vexta API:', err);
       } finally {
         setLoading(false);
       }
@@ -86,7 +126,8 @@ export function AppProvider({ children }) {
         olderDownloads,
         latestClientVersion,
         loading,
-        apiBaseUrl: API_BASE
+        apiBaseUrl: API_BASE,
+        downloadApiBaseUrl: DOWNLOAD_API_BASE
       }}
     >
       {children}
