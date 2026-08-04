@@ -71,7 +71,18 @@ export function AppProvider({ children }) {
                 return plat || 'windows';
               };
 
-              const list = Object.values(dlData.artifacts).map((art) => ({
+              const validArtifacts = Object.values(dlData.artifacts).filter((art) => {
+                const fn = (art.filename || '').toLowerCase()
+                return (
+                  !fn.endsWith('.yml') &&
+                  !fn.endsWith('.yaml') &&
+                  !fn.endsWith('.json') &&
+                  !fn.endsWith('.map') &&
+                  !fn.includes('builder-debug')
+                )
+              })
+
+              const list = validArtifacts.map((art) => ({
                 filename: art.filename,
                 version: dlData.latest_version || '0.0.1',
                 platform_key: detectPlatform(art),
@@ -80,9 +91,9 @@ export function AppProvider({ children }) {
                 sha256: art.sha256 || (dlData.checksums ? dlData.checksums.sha256 : ''),
                 url: art.url,
                 format: art.format || '',
-                arch: art.arch || 'x64'
-              }));
-              setClientDownloads(list);
+                arch: art.arch || 'x64',
+              }))
+              setClientDownloads(list)
             } else if (dlData.downloads && Object.keys(dlData.downloads).length > 0) {
               const list = Object.entries(dlData.downloads).map(([key, url]) => ({
                 filename: url.split('/').pop(),
