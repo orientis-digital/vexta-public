@@ -24,6 +24,10 @@ export default function DownloadsPage() {
   const androidDownloads = clientDownloads.filter((d) => d.platform_key === 'android');
   const linuxDownloads = clientDownloads.filter((d) => d.platform_key === 'linux');
 
+  const latestAppImage = clientDownloads.find((d) => d.platform_key === 'linux' && d.filename.endsWith('.AppImage'));
+  const latestDeb = clientDownloads.find((d) => d.platform_key === 'linux' && d.filename.endsWith('.deb'));
+  const latestTarGz = clientDownloads.find((d) => d.platform_key === 'linux' && d.filename.endsWith('.tar.gz'));
+
   const triggerDownload = (dl) => {
     confetti({
       particleCount: 75,
@@ -401,32 +405,129 @@ export default function DownloadsPage() {
         {/* ========================================================================= */}
         {tab === 'linux' && (
           <div className="flex flex-col gap-8 animate-in fade-in duration-200">
-            <div className="glass-panel p-8 rounded-3xl flex flex-col items-center text-center gap-6 relative overflow-hidden border border-white/10 shadow-2xl">
-              <div className="w-16 h-16 bg-[#5F7057]/15 border border-[#5F7057]/30 rounded-2xl flex items-center justify-center text-[#D6C5B3] text-3xl animate-pulse">
-                <i className="fa-brands fa-linux"></i>
-              </div>
-              <div className="flex flex-col gap-2 max-w-md">
-                <h2 className="text-xl font-extrabold uppercase tracking-wider text-white">Linux Client Coming Soon</h2>
-                <p className="text-xs text-gray-400 font-sans leading-relaxed">
-                  Linux client binary packages (`.tar.gz` app images) are in the compilation deployment queue. Operators will be notified via system broadcasts.
-                </p>
-              </div>
+            {linuxDownloads.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {/* 1. AppImage */}
+                <div className="glass-panel p-6 rounded-3xl flex flex-col gap-5 border border-white/10 shadow-xl">
+                  <div className="flex items-center justify-between border-b border-white/10 pb-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-[#5F7057]/20 border border-[#5F7057]/40 flex items-center justify-center text-[#D6C5B3] text-xl">
+                        <i className="fa-solid fa-box"></i>
+                      </div>
+                      <div>
+                        <h2 className="text-sm font-extrabold uppercase tracking-wider text-white font-mono">AppImage</h2>
+                        <span className="text-[10px] font-mono text-[#7C8775] uppercase">Standalone Linux Executable</span>
+                      </div>
+                    </div>
+                  </div>
+                  {latestAppImage ? (
+                    <div
+                      onClick={() => triggerDownload(latestAppImage)}
+                      className="glass-panel p-5 rounded-2xl flex flex-col gap-4 border border-[#5F7057]/40 bg-[#5F7057]/5 hover:border-[#5F7057] hover:bg-[#5F7057]/15 transition-all duration-300 group cursor-pointer shadow-lg"
+                    >
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="text-xs font-extrabold text-white uppercase tracking-wider truncate" title={latestAppImage.filename}>
+                          {latestAppImage.filename}
+                        </span>
+                        <span className="bg-[#5F7057] text-white px-2 py-0.5 rounded text-[9px] font-mono font-bold">
+                          v{latestAppImage.version}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between text-[10px] font-mono text-gray-300 border-t border-white/10 pt-3">
+                        <span className="bg-black/40 border border-white/10 px-2 py-0.5 rounded text-gray-300">{latestAppImage.size}</span>
+                        <span className="text-[#D6C5B3] uppercase font-bold">DOWNLOAD</span>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="p-4 text-xs font-mono text-gray-400 text-center border border-dashed border-white/10 rounded-xl">No AppImage build</div>
+                  )}
+                </div>
 
-              <div className="bg-[#0C0E0B]/80 border border-white/10 px-6 py-4 rounded-2xl flex flex-col gap-2 text-left font-mono text-[10px] w-full max-w-md shadow-inner text-[#7C8775] uppercase">
-                <div className="flex justify-between border-b border-white/5 pb-1">
-                  <span>Distributions:</span>
-                  <span className="text-[#D6C5B3] font-bold">Debian / Ubuntu / Arch</span>
+                {/* 2. Debian Package (.deb) */}
+                <div className="glass-panel p-6 rounded-3xl flex flex-col gap-5 border border-white/10 shadow-xl">
+                  <div className="flex items-center justify-between border-b border-white/10 pb-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-[#D97706]/20 border border-[#D97706]/40 flex items-center justify-center text-[#D97706] text-xl">
+                        <i className="fa-brands fa-[#D97706] fa-debian"></i>
+                      </div>
+                      <div>
+                        <h2 className="text-sm font-extrabold uppercase tracking-wider text-white font-mono">Debian Package (.DEB)</h2>
+                        <span className="text-[10px] font-mono text-[#7C8775] uppercase">Ubuntu / Debian / Parrot OS</span>
+                      </div>
+                    </div>
+                  </div>
+                  {latestDeb ? (
+                    <div
+                      onClick={() => triggerDownload(latestDeb)}
+                      className="glass-panel p-5 rounded-2xl flex flex-col gap-4 border border-[#D97706]/40 bg-[#D97706]/5 hover:border-[#D97706] hover:bg-[#D97706]/15 transition-all duration-300 group cursor-pointer shadow-lg"
+                    >
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="text-xs font-extrabold text-white uppercase tracking-wider truncate" title={latestDeb.filename}>
+                          {latestDeb.filename}
+                        </span>
+                        <span className="bg-[#D97706] text-white px-2 py-0.5 rounded text-[9px] font-mono font-bold">
+                          v{latestDeb.version}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between text-[10px] font-mono text-gray-300 border-t border-white/10 pt-3">
+                        <span className="bg-black/40 border border-white/10 px-2 py-0.5 rounded text-gray-300">{latestDeb.size}</span>
+                        <span className="text-[#D97706] uppercase font-bold">DOWNLOAD</span>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="p-4 text-xs font-mono text-gray-400 text-center border border-dashed border-white/10 rounded-xl">No .DEB build</div>
+                  )}
                 </div>
-                <div className="flex justify-between border-b border-white/5 pb-1">
-                  <span>Crypto Pipeline:</span>
-                  <span className="text-[#D6C5B3] font-bold">OpenSSL 3.0+ Backend</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Build Status:</span>
-                  <span className="text-[#D97706] font-bold">PACKAGING COMPILED BINARY</span>
+
+                {/* 3. Tarball Archive (.tar.gz) */}
+                <div className="glass-panel p-6 rounded-3xl flex flex-col gap-5 border border-white/10 shadow-xl">
+                  <div className="flex items-center justify-between border-b border-white/10 pb-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-white/10 border border-white/20 flex items-center justify-center text-white text-xl">
+                        <i className="fa-solid fa-file-archive"></i>
+                      </div>
+                      <div>
+                        <h2 className="text-sm font-extrabold uppercase tracking-wider text-white font-mono">Tarball (.TAR.GZ)</h2>
+                        <span className="text-[10px] font-mono text-[#7C8775] uppercase">Generic Linux Archive</span>
+                      </div>
+                    </div>
+                  </div>
+                  {latestTarGz ? (
+                    <div
+                      onClick={() => triggerDownload(latestTarGz)}
+                      className="glass-panel p-5 rounded-2xl flex flex-col gap-4 border border-white/20 bg-white/5 hover:border-white/40 hover:bg-white/10 transition-all duration-300 group cursor-pointer shadow-lg"
+                    >
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="text-xs font-extrabold text-white uppercase tracking-wider truncate" title={latestTarGz.filename}>
+                          {latestTarGz.filename}
+                        </span>
+                        <span className="bg-white/20 text-white px-2 py-0.5 rounded text-[9px] font-mono font-bold">
+                          v{latestTarGz.version}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between text-[10px] font-mono text-gray-300 border-t border-white/10 pt-3">
+                        <span className="bg-black/40 border border-white/10 px-2 py-0.5 rounded text-gray-300">{latestTarGz.size}</span>
+                        <span className="text-white uppercase font-bold">DOWNLOAD</span>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="p-4 text-xs font-mono text-gray-400 text-center border border-dashed border-white/10 rounded-xl">No .TAR.GZ build</div>
+                  )}
                 </div>
               </div>
-            </div>
+            ) : (
+              <div className="glass-panel p-8 rounded-3xl flex flex-col items-center text-center gap-6 relative overflow-hidden border border-white/10 shadow-2xl">
+                <div className="w-16 h-16 bg-[#5F7057]/15 border border-[#5F7057]/30 rounded-2xl flex items-center justify-center text-[#D6C5B3] text-3xl animate-pulse">
+                  <i className="fa-brands fa-linux"></i>
+                </div>
+                <div className="flex flex-col gap-2 max-w-md">
+                  <h2 className="text-xl font-extrabold uppercase tracking-wider text-white">Linux Client Builds</h2>
+                  <p className="text-xs text-gray-400 font-sans leading-relaxed">
+                    Linux client binary packages (`AppImage`, `.deb`, `.tar.gz`) will automatically register here as soon as they are uploaded to the downloads server.
+                  </p>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>
