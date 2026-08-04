@@ -52,10 +52,29 @@ export function AppProvider({ children }) {
             setLatestClientVersion(dlData.latest_version || '2.0.0');
 
             if (dlData.artifacts && Object.keys(dlData.artifacts).length > 0) {
+              const detectPlatform = (art) => {
+                const name = (art.filename || '').toLowerCase();
+                const key = (art.key || '').toLowerCase();
+                const plat = (art.platform || '').toLowerCase();
+                if (plat === 'windows' || key.includes('win') || name.includes('win') || name.endsWith('.exe') || name.endsWith('.zip')) {
+                  return 'windows';
+                }
+                if (plat === 'linux' || key.includes('linux') || name.includes('linux') || name.endsWith('.appimage') || name.endsWith('.deb') || name.endsWith('.tar.gz') || name.endsWith('.tgz')) {
+                  return 'linux';
+                }
+                if (plat === 'macos' || key.includes('mac') || name.includes('mac') || name.endsWith('.dmg') || name.endsWith('.pkg')) {
+                  return 'macos';
+                }
+                if (plat === 'android' || key.includes('android') || name.endsWith('.apk')) {
+                  return 'android';
+                }
+                return plat || 'windows';
+              };
+
               const list = Object.values(dlData.artifacts).map((art) => ({
                 filename: art.filename,
-                version: dlData.latest_version || '2.0.0',
-                platform_key: art.platform || 'windows',
+                version: dlData.latest_version || '0.0.1',
+                platform_key: detectPlatform(art),
                 key: art.key,
                 size: art.size_human || '15 MB',
                 sha256: art.sha256 || (dlData.checksums ? dlData.checksums.sha256 : ''),
