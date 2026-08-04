@@ -6,7 +6,7 @@ export default function Footer() {
   const { bridgeName } = useApp();
 
   return (
-    <footer id="contact" className="py-10 border-t border-white/5 bg-[#151813]/60 backdrop-blur-lg z-20 relative overflow-hidden mt-auto">
+    <footer id="contact" className="py-10 border-t border-[#293226] bg-[#121511] z-20 relative overflow-hidden mt-auto">
       {/* Background accents */}
       <div className="absolute bottom-0 right-0 w-[200px] h-[200px] bg-[#D97706]/5 rounded-full blur-[80px] pointer-events-none"></div>
       <div className="absolute top-0 left-0 w-[200px] h-[200px] bg-[#5F7057]/5 rounded-full blur-[80px] pointer-events-none"></div>
@@ -32,16 +32,16 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
           {/* Column 1: Brand & Details */}
           <div className="flex flex-col text-sm gap-4">
-            <NavLink to="/" className="flex items-center gap-3 no-underline group cursor-pointer self-start">
-              <div className="relative w-9 h-9 border border-[#5F7057]/30 rounded-xl flex items-center justify-center bg-[#5F7057]/5 shadow-tech-sm group-hover:shadow-tech group-hover:border-[#D97706] transition-all duration-300 p-1.5 overflow-hidden">
-                <img src="/img/vexta-logo.png" alt="Vexta Logo" className="w-full h-full object-contain rounded-lg" />
+            <NavLink to="/" className="flex items-center gap-3.5 no-underline group cursor-pointer self-start">
+              <div className="relative w-9 h-9 border border-emerald-500/30 rounded-xl flex items-center justify-center bg-emerald-950/20 shadow-[0_0_10px_rgba(16,185,129,0.2)] group-hover:shadow-[0_0_18px_rgba(16,185,129,0.45)] group-hover:border-emerald-400 transition-all duration-300 p-1.5 overflow-hidden">
+                <img src="/img/vexta-logo.png" alt="Vexta Logo" className="w-full h-full object-contain rounded-lg transition-transform duration-300 group-hover:scale-105" />
               </div>
               <div className="flex flex-col justify-center">
-                <div className="flex items-center">
-                  <span className="font-sans text-xs font-bold bg-gradient-to-r from-[#D6C5B3] to-[#D97706] bg-clip-text text-transparent tracking-tight leading-none uppercase">
+                <div className="flex items-center gap-1">
+                  <span className="font-sans text-xs font-bold bg-gradient-to-r from-emerald-400 via-[#D6C5B3] to-[#D97706] bg-clip-text text-transparent tracking-tight leading-none uppercase">
                     {bridgeName}
                   </span>
-                  <span className="text-[#D97706] animate-blink font-bold text-xs leading-none">_</span>
+                  <span className="text-emerald-400 animate-blink font-bold text-xs leading-none">_</span>
                 </div>
                 <span className="font-sans text-[0.45rem] text-[#7C8775] tracking-[0.2em] uppercase mt-0.5 border-t border-[#272D24]/50 pt-0.5 inline-block w-full">
                   Developed by Orientis Digital

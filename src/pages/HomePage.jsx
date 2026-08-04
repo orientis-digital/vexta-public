@@ -173,7 +173,7 @@ export default function HomePage() {
         </div>
 
         {/* Hero Paragraph & Specs */}
-        <p className="text-xs md:text-sm text-gray-300 leading-relaxed max-w-3xl font-sans border border-white/10 p-6 bg-[#151813]/60 backdrop-blur-md rounded-2xl shadow-2xl">
+        <p className="text-xs md:text-sm text-gray-200 leading-relaxed max-w-3xl font-sans border border-[#293226] p-6 bg-[#141813] rounded-2xl shadow-xl">
           &gt; Vexta is a metadata-blind WebSocket relay node engineered by <strong>Orientis Digital</strong>. Messages are sealed locally on end devices using hybrid cryptography (RSA-4096 + AES-GCM-256) before entering the network pipeline. The relay holds <strong>zero database storage for plaintexts</strong>, <strong>no private keys</strong>, and <strong>no metadata tracking</strong>.
         </p>
 

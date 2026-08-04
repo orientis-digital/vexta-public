@@ -7,7 +7,7 @@
   --color-tech-black: #0C0E0B;
   --color-tech-gray: #151813;
   --color-tech-slate: #272D24;
-  --color-muted: #7C8775;
+  --color-muted: #8E9A87;
   --font-sans: "Plus Jakarta Sans", "Inter", system-ui, sans-serif;
   --font-mono: "JetBrains Mono", monospace;
 }
@@ -19,13 +19,13 @@
   --tech-blue: #5F7057;
   --tech-indigo: #D97706;
   --tech-sky: #D6C5B3;
-  --muted: #7C8775;
+  --muted: #8E9A87;
 }
 
 body {
   font-family: "Plus Jakarta Sans", "Inter", sans-serif;
   background-color: var(--tech-black);
-  color: #d1d5db;
+  color: #e2e8f0;
   font-size: 15px;
   line-height: 1.6;
 }
@@ -36,10 +36,10 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .grid-bg {
-  background-size: 50px 50px;
+  background-size: 40px 40px;
   background-image: 
-    linear-gradient(to right, rgba(95, 112, 87, 0.03) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(95, 112, 87, 0.03) 1px, transparent 1px);
+    linear-gradient(to right, rgba(95, 112, 87, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(95, 112, 87, 0.05) 1px, transparent 1px);
 }
 
 .text-brand-gradient {
@@ -49,7 +49,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .glow-success {
-  text-shadow: 0 0 15px rgba(214, 197, 179, 0.3);
+  text-shadow: 0 0 12px rgba(214, 197, 179, 0.35);
 }
 
 .typewriter::after {
@@ -67,28 +67,28 @@ h1, h2, h3, h4, h5, h6 {
   animation: blink 1s step-end infinite;
 }
 
-.glass-panel {
-  background: rgba(21, 24, 19, 0.65);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(95, 112, 87, 0.15);
-  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+/* Solid Tactical Bento Panels (No Glassmorphism / Blur) */
+.glass-panel, .solid-panel {
+  background: #141813;
+  border: 1px solid #293226;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.glass-panel-hover {
-  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+.glass-panel-hover, .solid-panel-hover {
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.glass-panel-hover:hover {
-  background: rgba(21, 24, 19, 0.85);
-  border-color: rgba(217, 119, 6, 0.3);
-  box-shadow: 0 10px 30px -10px rgba(217, 119, 6, 0.25);
-  transform: translateY(-4px);
+.glass-panel-hover:hover, .solid-panel-hover:hover {
+  background: #1a2019;
+  border-color: rgba(217, 119, 6, 0.45);
+  box-shadow: 0 8px 25px -5px rgba(217, 119, 6, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  transform: translateY(-3px);
 }
 
 @keyframes float {
   0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-8px); }
+  50% { transform: translateY(-6px); }
 }
 
 .animate-float {
@@ -213,17 +213,17 @@ h1, h2, h3, h4, h5, h6 {
 
 .markdown-body code {
   font-family: "JetBrains Mono", monospace;
-  background-color: rgba(0, 0, 0, 0.4);
-  padding: 0.15rem 0.3rem;
+  background-color: #0d100c;
+  padding: 0.15rem 0.35rem;
   border-radius: 0.25rem;
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  border: 1px solid #283025;
   color: var(--tech-sky);
   font-size: 0.85em;
 }
 
 .markdown-body pre {
-  background-color: rgba(0, 0, 0, 0.6);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  background-color: #0a0d09;
+  border: 1px solid #283025;
   padding: 0.75rem;
   border-radius: 0.5rem;
   margin-bottom: 0.75rem;
@@ -242,7 +242,7 @@ h1, h2, h3, h4, h5, h6 {
   color: var(--muted);
   font-style: italic;
   margin-bottom: 0.75rem;
-  background: rgba(217, 119, 6, 0.05);
+  background: #171c15;
   padding-top: 0.5rem;
   padding-bottom: 0.5rem;
   border-radius: 0 0.375rem 0.375rem 0;
@@ -256,26 +256,17 @@ h1, h2, h3, h4, h5, h6 {
   font-style: italic;
 }
 
-/* Cyber slate dashboard styles */
-.cyber-grid {
-  background-size: 40px 40px;
-  background-image: 
-      linear-gradient(to right, rgba(0, 240, 255, 0.02) 1px, transparent 1px),
-      linear-gradient(to bottom, rgba(0, 240, 255, 0.02) 1px, transparent 1px);
-}
-
+/* Tactical Cyber Slate Panel */
 .cyber-panel {
-  background: rgba(11, 15, 25, 0.85);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid #151e33;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+  background: #141813;
+  border: 1px solid #283025;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.5);
 }
 
 .cyber-border-glow {
   transition: all 0.3s ease;
 }
 .cyber-border-glow:hover {
-  border-color: #00f0ff;
-  box-shadow: 0 0 12px rgba(0, 240, 255, 0.2);
+  border-color: #D97706;
+  box-shadow: 0 0 12px rgba(217, 119, 6, 0.25);
 }
