@@ -12,8 +12,10 @@ export default function HomePage() {
   const phrases = [
     'RSA-4096 Asymmetric Identity Authentication',
     'Blind Envelope Routing Protocol (Zero Metadata Retention)',
+    'Real-Time Peer-to-Peer WebRTC Voice & Video Calling',
+    'Binary MessagePack WebSocket Framing',
     'Client-Side AES-256-GCM Payload Encryption',
-    'Argon2id Master Vault Key Derivation'
+    'Messenger-Style Real-Time Presence Engine'
   ];
   const [typewriterText, setTypewriterText] = useState('');
   const [phraseIdx, setPhraseIdx] = useState(0);

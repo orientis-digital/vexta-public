@@ -423,8 +423,31 @@ export default function DocsPage() {
               <CodeBlock>{`{
   "type": "SEND_MESSAGE",
   "recipient": "bob",
-  "ciphertext": "BASE64_ENCRYPTED_AES_GCM_ENVELOPE"
+  "ciphertext": "BASE64_ENCRYPTED_AES_GCM_ENVELOPE",
+  "wire_blob": "BASE64_ENCRYPTED_AES_GCM_ENVELOPE",
+  "timestamp": 1720000000000
 }`}</CodeBlock>
+
+              <h4 className="text-xs font-bold text-[#D6C5B3] uppercase font-mono mt-2">A. Binary MessagePack Framing</h4>
+              <p className="text-xs text-gray-400">
+                High-throughput clients automatically frame blind envelopes using binary MessagePack payloads prefixed with <code className="text-[#D6C5B3] bg-black/50 px-2 py-0.5 rounded font-mono">BLIND_MESSAGE</code> headers for sub-millisecond parsing.
+              </p>
+
+              <h4 className="text-xs font-bold text-[#D6C5B3] uppercase font-mono mt-2">B. WebRTC Signaling Control Frames</h4>
+              <p className="text-xs text-gray-400">
+                Voice and video call negotiations exchange SDP offers, answers, and ICE candidates using internal control frames (<code className="text-[#D97706] bg-black/50 px-2 py-0.5 rounded font-mono">call_offer</code>, <code className="text-[#D97706] bg-black/50 px-2 py-0.5 rounded font-mono">call_answer</code>, <code className="text-[#D97706] bg-black/50 px-2 py-0.5 rounded font-mono">call_ice</code>, <code className="text-[#D97706] bg-black/50 px-2 py-0.5 rounded font-mono">call_end</code>) that run silently in the background without populating chat message histories.
+              </p>
+              <CodeBlock>{`{
+  "type": "call_offer",
+  "sdp": { "type": "offer", "sdp": "v=0..." },
+  "is_video": true,
+  "is_group": false
+}`}</CodeBlock>
+
+              <h4 className="text-xs font-bold text-[#D6C5B3] uppercase font-mono mt-2">C. Presence & Heartbeat Engine</h4>
+              <p className="text-xs text-gray-400">
+                Clients broadcast 5-minute presence heartbeats (<code className="text-green-400 bg-black/50 px-2 py-0.5 rounded font-mono">&#123; "type": "presence", "status": "online" &#125;</code>) over WebSocket to update contact status indicators (<code className="text-green-400 font-mono">● Active now</code> vs relative timestamps).
+              </p>
             </div>
 
             {/* Spec 3: Database Abstractions */}

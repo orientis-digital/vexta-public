@@ -5,6 +5,22 @@ const AppContext = createContext();
 const API_BASE = (import.meta.env.VITE_API_URL || 'https://vexta-api.nexusec.space').replace(/\/$/, '');
 const DOWNLOAD_API_BASE = (import.meta.env.VITE_DOWNLOAD_API_URL || 'https://downloads.nexusec.space').replace(/\/$/, '');
 
+const DEFAULT_ANNOUNCEMENT = {
+  id: 'dispatch-v0.0.5',
+  message: `### Vexta v0.0.5 Protocol & Desktop Client Release
+
+We are excited to announce the release of **Vexta v0.0.5** across Linux AppImage, Windows executable, and Web.
+
+**Key Upgrades & Security Features:**
+- 🔐 **RSA 4096-Bit Key Engine**: Identity keypair generation upgraded to 4096-bit RSA with RSA-PSS signatures.
+- ⚡ **Binary MessagePack Decoder**: Full decoding of MessagePack binary payloads over Vexta V2 Rust Bridge (\`wss://vexta-api.nexusec.space/ws/chat/\`).
+- 📞 **P2P WebRTC Voice & Video Calling**: Non-echo WebRTC call signaling and real-time mesh connection management.
+- 🟢 **Real-Time Presence Engine**: 5-minute Messenger-style heartbeats, relative last active status, and live sidebar indicators.
+- 📦 **Offline Outbound Queue**: Automatic caching and instant reconnection flushing for messages sent during network dropouts.
+- ✉️ **Delivery Status Checkmarks**: Live checkmark tracking (\`✓\` Sent, \`✓✓\` Delivered / Read).`,
+  created_at: '2026-08-06'
+};
+
 export function AppProvider({ children }) {
   const [bridgeName, setBridgeName] = useState('Vexta Bridge');
   const [bridgeDescription, setBridgeDescription] = useState('A privacy-first, zero-knowledge Vexta relay bridge.');
@@ -123,13 +139,24 @@ export function AppProvider({ children }) {
         }
 
         // 3. Fetch Announcements Feed
-        const annRes = await fetch(`${API_BASE}/api/announcements/`);
-        if (annRes.ok) {
-          const annData = await annRes.json();
-          setAnnouncements(annData.announcements || []);
+        try {
+          const annRes = await fetch(`${API_BASE}/api/announcements/`);
+          if (annRes.ok) {
+            const annData = await annRes.json();
+            if (annData.announcements && annData.announcements.length > 0) {
+              setAnnouncements(annData.announcements);
+            } else {
+              setAnnouncements([DEFAULT_ANNOUNCEMENT]);
+            }
+          } else {
+            setAnnouncements([DEFAULT_ANNOUNCEMENT]);
+          }
+        } catch {
+          setAnnouncements([DEFAULT_ANNOUNCEMENT]);
         }
       } catch (err) {
         console.error('Error fetching data from Vexta API:', err);
+        setAnnouncements([DEFAULT_ANNOUNCEMENT]);
       } finally {
         setLoading(false);
       }
