@@ -201,25 +201,6 @@ export default function HomePage() {
           </Link>
         </div>
 
-        {/* Top Telemetry Stats Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 w-full max-w-4xl mt-6 select-none">
-          <div className="glass-panel p-4 rounded-xl flex flex-col items-center text-center">
-            <span className="text-xl font-extrabold font-mono text-white tracking-tight">{onlineUsers} Pipes</span>
-            <span className="text-[9px] uppercase tracking-widest text-[#7C8775] font-mono mt-0.5">Active WebSocket Sockets</span>
-          </div>
-          <div className="glass-panel p-4 rounded-xl flex flex-col items-center text-center">
-            <span className="text-xl font-extrabold font-mono text-[#D6C5B3] tracking-tight">{totalUsers} Identities</span>
-            <span className="text-[9px] uppercase tracking-widest text-[#7C8775] font-mono mt-0.5">RSA-4096 Public Profiles</span>
-          </div>
-          <div className="glass-panel p-4 rounded-xl flex flex-col items-center text-center">
-            <span className="text-xl font-extrabold font-mono text-[#D97706] tracking-tight">100% Blind</span>
-            <span className="text-[9px] uppercase tracking-widest text-[#7C8775] font-mono mt-0.5">Zero Plaintext Logging</span>
-          </div>
-          <div className="glass-panel p-4 rounded-xl flex flex-col items-center text-center">
-            <span className="text-xl font-extrabold font-mono text-green-400 tracking-tight">0 Disk Payload</span>
-            <span className="text-[9px] uppercase tracking-widest text-[#7C8775] font-mono mt-0.5">Volatile RAM Queue</span>
-          </div>
-        </div>
       </section>
 
       {/* ========================================================================= */}
