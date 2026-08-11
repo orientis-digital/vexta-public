@@ -143,8 +143,9 @@ export function AppProvider({ children }) {
           const annRes = await fetch(`${API_BASE}/api/announcements/`);
           if (annRes.ok) {
             const annData = await annRes.json();
-            if (annData.announcements && annData.announcements.length > 0) {
-              setAnnouncements(annData.announcements);
+            const list = Array.isArray(annData) ? annData : (annData.announcements || []);
+            if (list.length > 0) {
+              setAnnouncements(list);
             } else {
               setAnnouncements([DEFAULT_ANNOUNCEMENT]);
             }

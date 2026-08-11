@@ -2,6 +2,14 @@ import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import ReactMarkdown from 'react-markdown';
 
+const formatDate = (ts) => {
+  if (!ts) return 'RECENT';
+  if (typeof ts === 'number') {
+    return new Date(ts * 1000).toUTCString();
+  }
+  return String(ts).endsWith('UTC') ? String(ts) : `${ts} UTC`;
+};
+
 export default function AnnouncementsPage() {
   const { announcements } = useApp();
   const [search, setSearch] = useState('');
@@ -62,7 +70,7 @@ export default function AnnouncementsPage() {
         {filteredAnnouncements.length > 0 ? (
           filteredAnnouncements.map((ann, idx) => (
             <div
-              key={ann.id}
+              key={ann.id || idx}
               className="glass-panel p-6 md:p-8 rounded-3xl flex flex-col gap-5 relative overflow-hidden border border-white/10 hover:border-[#D97706]/40 transition-all duration-300 shadow-xl"
             >
               <div className="flex flex-wrap items-center justify-between gap-3 text-xs font-mono border-b border-white/10 pb-3">
@@ -76,7 +84,7 @@ export default function AnnouncementsPage() {
                     </span>
                   )}
                 </div>
-                <span className="text-[#7C8775] font-bold">{ann.created_at} UTC</span>
+                <span className="text-[#7C8775] font-bold">{formatDate(ann.created_at)}</span>
               </div>
 
               <div className="text-xs md:text-sm text-gray-200 leading-relaxed font-sans markdown-body">
