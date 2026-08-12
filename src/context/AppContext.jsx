@@ -48,7 +48,7 @@ export function AppProvider({ children }) {
     async function fetchBridgeData() {
       try {
         // 1. Fetch System Info from Vexta API
-        const infoRes = await fetch(`${API_BASE}/api/info/`);
+        const infoRes = await fetch(`${API_BASE}/api/info`);
         if (infoRes.ok) {
           const info = await infoRes.json();
           setBridgeName(info.bridge_name || 'Vexta Bridge');
@@ -135,7 +135,7 @@ export function AppProvider({ children }) {
           }
         } catch (dlErr) {
           console.warn('Centralized downloads server unreachable, falling back to bridge API:', dlErr);
-          const dlRes = await fetch(`${API_BASE}/api/downloads/`);
+          const dlRes = await fetch(`${API_BASE}/api/downloads`);
           if (dlRes.ok) {
             const dlData = await dlRes.json();
             setClientDownloads(dlData.downloads || []);
@@ -146,9 +146,9 @@ export function AppProvider({ children }) {
 
         // 3. Fetch Announcements Feed
         try {
-          let annRes = await fetch(`${API_BASE}/api/announcements/`);
+          let annRes = await fetch(`${API_BASE}/api/announcements`);
           if (!annRes.ok && API_BASE !== 'http://localhost:8000') {
-            annRes = await fetch('http://localhost:8000/api/announcements/');
+            annRes = await fetch('http://localhost:8000/api/announcements');
           }
           if (annRes.ok) {
             const annData = await annRes.json();
@@ -159,7 +159,7 @@ export function AppProvider({ children }) {
           }
         } catch {
           try {
-            const localRes = await fetch('http://localhost:8000/api/announcements/');
+            const localRes = await fetch('http://localhost:8000/api/announcements');
             if (localRes.ok) {
               const localData = await localRes.json();
               const list = Array.isArray(localData) ? localData : (localData.announcements || []);
