@@ -2,23 +2,29 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 
 const AppContext = createContext();
 
-const API_BASE = (import.meta.env.VITE_API_URL || 'https://vexta-api.nexusec.space').replace(/\/$/, '');
+const getApiBase = () => {
+  if (import.meta.env.VITE_API_URL) return import.meta.env.VITE_API_URL.replace(/\/$/, '');
+  if (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
+    return 'http://localhost:8000';
+  }
+  return 'https://vexta-api.nexusec.space';
+};
+
+const API_BASE = getApiBase();
 const DOWNLOAD_API_BASE = (import.meta.env.VITE_DOWNLOAD_API_URL || 'https://downloads.nexusec.space').replace(/\/$/, '');
 
 const DEFAULT_ANNOUNCEMENT = {
-  id: 'dispatch-v0.0.5',
-  message: `### Vexta v0.0.5 Protocol & Desktop Client Release
+  id: 'dispatch-v0.0.10',
+  message: `### Vexta v0.0.10 Protocol & Desktop Client Release
 
-We are excited to announce the release of **Vexta v0.0.5** across Linux AppImage, Windows executable, and Web.
+We are excited to announce the release of **Vexta v0.0.10** across Linux (AppImage, .deb, .tar.gz) and Windows (.zip).
 
 **Key Upgrades & Security Features:**
-- 🔐 **RSA 4096-Bit Key Engine**: Identity keypair generation upgraded to 4096-bit RSA with RSA-PSS signatures.
-- ⚡ **Binary MessagePack Decoder**: Full decoding of MessagePack binary payloads over Vexta V2 Rust Bridge (\`wss://vexta-api.nexusec.space/ws/chat/\`).
-- 📞 **P2P WebRTC Voice & Video Calling**: Non-echo WebRTC call signaling and real-time mesh connection management.
-- 🟢 **Real-Time Presence Engine**: 5-minute Messenger-style heartbeats, relative last active status, and live sidebar indicators.
-- 📦 **Offline Outbound Queue**: Automatic caching and instant reconnection flushing for messages sent during network dropouts.
-- ✉️ **Delivery Status Checkmarks**: Live checkmark tracking (\`✓\` Sent, \`✓✓\` Delivered / Read).`,
-  created_at: '2026-08-06'
+- 🎨 **Sleek Minimalist Dark UI**: Solid surface architecture with Inter and JetBrains Mono typography.
+- ⚡ **Instant Roster Sync**: Zero-refresh sidebar contact list updates on friend actions.
+- 🛡️ **Smart Contact Failsafe**: Self-add prevention and network account existence validation.
+- 🔒 **Hardened Server Security**: Constant-time admin authentication, 1 MB WebSocket frame limits, and HTTP security headers.`,
+  created_at: '2026-08-12'
 };
 
 export function AppProvider({ children }) {
@@ -140,20 +146,30 @@ export function AppProvider({ children }) {
 
         // 3. Fetch Announcements Feed
         try {
-          const annRes = await fetch(`${API_BASE}/api/announcements/`);
+          let annRes = await fetch(`${API_BASE}/api/announcements/`);
+          if (!annRes.ok && API_BASE !== 'http://localhost:8000') {
+            annRes = await fetch('http://localhost:8000/api/announcements/');
+          }
           if (annRes.ok) {
             const annData = await annRes.json();
             const list = Array.isArray(annData) ? annData : (annData.announcements || []);
-            if (list.length > 0) {
-              setAnnouncements(list);
-            } else {
-              setAnnouncements([DEFAULT_ANNOUNCEMENT]);
-            }
+            setAnnouncements(list.length > 0 ? list : [DEFAULT_ANNOUNCEMENT]);
           } else {
             setAnnouncements([DEFAULT_ANNOUNCEMENT]);
           }
         } catch {
-          setAnnouncements([DEFAULT_ANNOUNCEMENT]);
+          try {
+            const localRes = await fetch('http://localhost:8000/api/announcements/');
+            if (localRes.ok) {
+              const localData = await localRes.json();
+              const list = Array.isArray(localData) ? localData : (localData.announcements || []);
+              setAnnouncements(list.length > 0 ? list : [DEFAULT_ANNOUNCEMENT]);
+            } else {
+              setAnnouncements([DEFAULT_ANNOUNCEMENT]);
+            }
+          } catch {
+            setAnnouncements([DEFAULT_ANNOUNCEMENT]);
+          }
         }
       } catch (err) {
         console.error('Error fetching data from Vexta API:', err);
