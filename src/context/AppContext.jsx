@@ -27,6 +27,19 @@ We are excited to announce the release of **Vexta v0.0.10** across Linux (AppIma
   created_at: '2026-08-12'
 };
 
+const safeJsonParse = async (res) => {
+  if (!res || !res.ok) return null;
+  const contentType = res.headers.get('content-type') || '';
+  if (!contentType.includes('application/json') && !contentType.includes('text/json')) {
+    return null;
+  }
+  try {
+    return await res.json();
+  } catch {
+    return null;
+  }
+};
+
 export function AppProvider({ children }) {
   const [bridgeName, setBridgeName] = useState('Vexta Bridge');
   const [bridgeDescription, setBridgeDescription] = useState('A privacy-first, zero-knowledge Vexta relay bridge.');
@@ -46,11 +59,17 @@ export function AppProvider({ children }) {
 
   useEffect(() => {
     async function fetchBridgeData() {
+      // 1. Fetch System Info from Vexta API (Isolated try-catch)
       try {
-        // 1. Fetch System Info from Vexta API
-        const infoRes = await fetch(`${API_BASE}/api/info`);
-        if (infoRes.ok) {
-          const info = await infoRes.json();
+        let infoRes = await fetch(`${API_BASE}/api/info`);
+        let info = await safeJsonParse(infoRes);
+        if (!info && API_BASE !== 'http://localhost:8000') {
+          try {
+            infoRes = await fetch('http://localhost:8000/api/info');
+            info = await safeJsonParse(infoRes);
+          } catch {}
+        }
+        if (info) {
           setBridgeName(info.bridge_name || 'Vexta Bridge');
           setBridgeDescription(info.bridge_description || '');
           setUptime(info.uptime || '0h 0m 0s');
@@ -65,118 +84,111 @@ export function AppProvider({ children }) {
             setKeyGeneratedAt(info.identity.key_generated_at || null);
           }
         }
+      } catch (infoErr) {
+        console.warn('Vexta API info endpoint unreachable or Cloudflare challenge active:', infoErr);
+      }
 
-        // 2. Fetch Client Downloads using Centralized Standardized Downloads API
-        try {
-          const dlRes = await fetch(`${DOWNLOAD_API_BASE}/api/v1/vexta/latest`);
-          if (dlRes.ok) {
-            const dlData = await dlRes.json();
-            setLatestClientVersion(dlData.latest_version || '2.0.0');
+      // 2. Fetch Client Downloads using Centralized Standardized Downloads API
+      try {
+        const dlRes = await fetch(`${DOWNLOAD_API_BASE}/api/v1/vexta/latest`);
+        const dlData = await safeJsonParse(dlRes);
+        if (dlData) {
+          setLatestClientVersion(dlData.latest_version || '2.0.0');
 
-            if (dlData.artifacts && Object.keys(dlData.artifacts).length > 0) {
-              const detectPlatform = (art) => {
-                const name = (art.filename || '').toLowerCase();
-                const key = (art.key || '').toLowerCase();
-                const plat = (art.platform || '').toLowerCase();
-                if (plat === 'windows' || key.includes('win') || name.includes('win') || name.endsWith('.exe') || name.endsWith('.zip')) {
-                  return 'windows';
-                }
-                if (plat === 'linux' || key.includes('linux') || name.includes('linux') || name.endsWith('.appimage') || name.endsWith('.deb') || name.endsWith('.tar.gz') || name.endsWith('.tgz')) {
-                  return 'linux';
-                }
-                if (plat === 'macos' || key.includes('mac') || name.includes('mac') || name.endsWith('.dmg') || name.endsWith('.pkg')) {
-                  return 'macos';
-                }
-                if (plat === 'android' || key.includes('android') || name.endsWith('.apk')) {
-                  return 'android';
-                }
-                return plat || 'windows';
-              };
+          if (dlData.artifacts && Object.keys(dlData.artifacts).length > 0) {
+            const detectPlatform = (art) => {
+              const name = (art.filename || '').toLowerCase();
+              const key = (art.key || '').toLowerCase();
+              const plat = (art.platform || '').toLowerCase();
+              if (plat === 'windows' || key.includes('win') || name.includes('win') || name.endsWith('.exe') || name.endsWith('.zip')) {
+                return 'windows';
+              }
+              if (plat === 'linux' || key.includes('linux') || name.includes('linux') || name.endsWith('.appimage') || name.endsWith('.deb') || name.endsWith('.tar.gz') || name.endsWith('.tgz')) {
+                return 'linux';
+              }
+              if (plat === 'macos' || key.includes('mac') || name.includes('mac') || name.endsWith('.dmg') || name.endsWith('.pkg')) {
+                return 'macos';
+              }
+              if (plat === 'android' || key.includes('android') || name.endsWith('.apk')) {
+                return 'android';
+              }
+              return plat || 'windows';
+            };
 
-              const validArtifacts = Object.values(dlData.artifacts).filter((art) => {
-                const fn = (art.filename || '').toLowerCase()
-                return (
-                  !fn.endsWith('.yml') &&
-                  !fn.endsWith('.yaml') &&
-                  !fn.endsWith('.json') &&
-                  !fn.endsWith('.map') &&
-                  !fn.includes('builder-debug')
-                )
-              })
+            const validArtifacts = Object.values(dlData.artifacts).filter((art) => {
+              const fn = (art.filename || '').toLowerCase();
+              return (
+                !fn.endsWith('.yml') &&
+                !fn.endsWith('.yaml') &&
+                !fn.endsWith('.json') &&
+                !fn.endsWith('.map') &&
+                !fn.includes('builder-debug')
+              );
+            });
 
-              const list = validArtifacts.map((art) => ({
-                filename: art.filename,
-                version: dlData.latest_version || '0.0.1',
-                platform_key: detectPlatform(art),
-                key: art.key,
-                size: art.size_human || '15 MB',
-                sha256: art.sha256 || (dlData.checksums ? dlData.checksums.sha256 : ''),
-                url: art.url,
-                format: art.format || '',
-                arch: art.arch || 'x64',
-              }))
-              setClientDownloads(list)
-            } else if (dlData.downloads && Object.keys(dlData.downloads).length > 0) {
-              const list = Object.entries(dlData.downloads).map(([key, url]) => ({
-                filename: url.split('/').pop(),
-                version: dlData.latest_version || '2.0.0',
-                platform_key: key.startsWith('windows') ? 'windows' : key.startsWith('linux') ? 'linux' : key.startsWith('macos') ? 'macos' : 'windows',
-                key: key,
-                size: '15 MB',
-                sha256: (dlData.checksums && (dlData.checksums[key + '_sha256'] || dlData.checksums.sha256)) || '',
-                url: url,
-                format: key,
-                arch: 'x64'
-              }));
-              setClientDownloads(list);
-            }
-          } else {
-            throw new Error('Downloads server response not OK');
+            const list = validArtifacts.map((art) => ({
+              filename: art.filename,
+              version: dlData.latest_version || '0.0.1',
+              platform_key: detectPlatform(art),
+              key: art.key,
+              size: art.size_human || '15 MB',
+              sha256: art.sha256 || (dlData.checksums ? (dlData.checksums[(art.key || '') + '_sha256'] || dlData.checksums.sha256) : ''),
+              url: art.url,
+              format: art.format || '',
+              arch: art.arch || 'x64',
+            }));
+            setClientDownloads(list);
+          } else if (dlData.downloads && Object.keys(dlData.downloads).length > 0) {
+            const list = Object.entries(dlData.downloads).map(([key, url]) => ({
+              filename: url.split('/').pop(),
+              version: dlData.latest_version || '2.0.0',
+              platform_key: key.startsWith('windows') ? 'windows' : key.startsWith('linux') ? 'linux' : key.startsWith('macos') ? 'macos' : 'windows',
+              key: key,
+              size: '15 MB',
+              sha256: (dlData.checksums && (dlData.checksums[key + '_sha256'] || dlData.checksums.sha256)) || '',
+              url: url,
+              format: key,
+              arch: 'x64'
+            }));
+            setClientDownloads(list);
           }
-        } catch (dlErr) {
-          console.warn('Centralized downloads server unreachable, falling back to bridge API:', dlErr);
+        } else {
+          throw new Error('Downloads server response not OK or not JSON');
+        }
+      } catch (dlErr) {
+        console.warn('Centralized downloads server unreachable, falling back to bridge API:', dlErr);
+        try {
           const dlRes = await fetch(`${API_BASE}/api/downloads`);
-          if (dlRes.ok) {
-            const dlData = await dlRes.json();
+          const dlData = await safeJsonParse(dlRes);
+          if (dlData) {
             setClientDownloads(dlData.downloads || []);
             setOlderDownloads(dlData.older_downloads || []);
             setLatestClientVersion(dlData.latest_version || null);
           }
-        }
-
-        // 3. Fetch Announcements Feed
-        try {
-          let annRes = await fetch(`${API_BASE}/api/announcements`);
-          if (!annRes.ok && API_BASE !== 'http://localhost:8000') {
-            annRes = await fetch('http://localhost:8000/api/announcements');
-          }
-          if (annRes.ok) {
-            const annData = await annRes.json();
-            const list = Array.isArray(annData) ? annData : (annData.announcements || []);
-            setAnnouncements(list.length > 0 ? list : [DEFAULT_ANNOUNCEMENT]);
-          } else {
-            setAnnouncements([DEFAULT_ANNOUNCEMENT]);
-          }
-        } catch {
-          try {
-            const localRes = await fetch('http://localhost:8000/api/announcements');
-            if (localRes.ok) {
-              const localData = await localRes.json();
-              const list = Array.isArray(localData) ? localData : (localData.announcements || []);
-              setAnnouncements(list.length > 0 ? list : [DEFAULT_ANNOUNCEMENT]);
-            } else {
-              setAnnouncements([DEFAULT_ANNOUNCEMENT]);
-            }
-          } catch {
-            setAnnouncements([DEFAULT_ANNOUNCEMENT]);
-          }
-        }
-      } catch (err) {
-        console.error('Error fetching data from Vexta API:', err);
-        setAnnouncements([DEFAULT_ANNOUNCEMENT]);
-      } finally {
-        setLoading(false);
+        } catch {}
       }
+
+      // 3. Fetch Announcements Feed
+      try {
+        let annRes = await fetch(`${API_BASE}/api/announcements`);
+        let annData = await safeJsonParse(annRes);
+        if (!annData && API_BASE !== 'http://localhost:8000') {
+          try {
+            annRes = await fetch('http://localhost:8000/api/announcements');
+            annData = await safeJsonParse(annRes);
+          } catch {}
+        }
+        if (annData) {
+          const list = Array.isArray(annData) ? annData : (annData.announcements || []);
+          setAnnouncements(list.length > 0 ? list : [DEFAULT_ANNOUNCEMENT]);
+        } else {
+          setAnnouncements([DEFAULT_ANNOUNCEMENT]);
+        }
+      } catch {
+        setAnnouncements([DEFAULT_ANNOUNCEMENT]);
+      }
+
+      setLoading(false);
     }
 
     fetchBridgeData();
