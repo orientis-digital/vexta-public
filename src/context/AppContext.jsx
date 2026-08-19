@@ -54,12 +54,87 @@ export function AppProvider({ children }) {
   const [announcements, setAnnouncements] = useState([]);
   const [clientDownloads, setClientDownloads] = useState([]);
   const [olderDownloads, setOlderDownloads] = useState([]);
+  const [allReleases, setAllReleases] = useState([]);
+  const [availableVersions, setAvailableVersions] = useState([]);
+  const [selectedVersion, setSelectedVersion] = useState(null);
   const [latestClientVersion, setLatestClientVersion] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  const detectPlatform = (art) => {
+    const name = (art.filename || '').toLowerCase();
+    const key = (art.key || '').toLowerCase();
+    const plat = (art.platform || '').toLowerCase();
+    if (plat === 'windows' || key.includes('win') || name.includes('win') || name.endsWith('.exe') || name.endsWith('.zip')) {
+      return 'windows';
+    }
+    if (plat === 'linux' || key.includes('linux') || name.includes('linux') || name.endsWith('.appimage') || name.endsWith('.deb') || name.endsWith('.tar.gz') || name.endsWith('.tgz')) {
+      return 'linux';
+    }
+    if (plat === 'macos' || key.includes('mac') || name.includes('mac') || name.endsWith('.dmg') || name.endsWith('.pkg')) {
+      return 'macos';
+    }
+    if (plat === 'android' || key.includes('android') || name.endsWith('.apk')) {
+      return 'android';
+    }
+    return plat || 'windows';
+  };
+
+  const parseReleaseArtifacts = (release) => {
+    if (!release) return [];
+    const version = release.latest_version || release.version || '0.0.1';
+    if (release.artifacts && Object.keys(release.artifacts).length > 0) {
+      const valid = Object.values(release.artifacts).filter((art) => {
+        const fn = (art.filename || '').toLowerCase();
+        return (
+          !fn.endsWith('.yml') &&
+          !fn.endsWith('.yaml') &&
+          !fn.endsWith('.json') &&
+          !fn.endsWith('.map') &&
+          !fn.includes('builder-debug')
+        );
+      });
+      return valid.map((art) => ({
+        filename: art.filename,
+        version: version,
+        release_date: release.release_date || '',
+        platform_key: detectPlatform(art),
+        key: art.key,
+        size: art.size_human || '15 MB',
+        sha256: art.sha256 || (release.checksums ? (release.checksums[(art.key || '') + '_sha256'] || release.checksums.sha256) : ''),
+        url: art.url,
+        format: art.format || '',
+        arch: art.arch || 'x64',
+      }));
+    } else if (release.downloads && Object.keys(release.downloads).length > 0) {
+      return Object.entries(release.downloads).map(([key, url]) => ({
+        filename: url.split('/').pop(),
+        version: version,
+        release_date: release.release_date || '',
+        platform_key: key.startsWith('windows') ? 'windows' : key.startsWith('linux') ? 'linux' : key.startsWith('macos') ? 'macos' : 'windows',
+        key: key,
+        size: '15 MB',
+        sha256: (release.checksums && (release.checksums[key + '_sha256'] || release.checksums.sha256)) || '',
+        url: url,
+        format: key,
+        arch: 'x64',
+      }));
+    }
+    return [];
+  };
+
+  const selectReleaseByVersion = (versionStr) => {
+    setSelectedVersion(versionStr);
+    const found = allReleases.find(
+      (r) => (r.latest_version || r.version || '').replace(/^v/i, '') === versionStr.replace(/^v/i, '')
+    );
+    if (found) {
+      setClientDownloads(parseReleaseArtifacts(found));
+    }
+  };
+
   useEffect(() => {
     async function fetchBridgeData() {
-      // 1. Fetch System Info from Vexta API (Isolated try-catch)
+      // 1. Fetch System Info from Vexta API
       try {
         let infoRes = await fetch(`${API_BASE}/api/info`);
         let info = await safeJsonParse(infoRes);
@@ -88,72 +163,35 @@ export function AppProvider({ children }) {
         console.warn('Vexta API info endpoint unreachable or Cloudflare challenge active:', infoErr);
       }
 
-      // 2. Fetch Client Downloads using Centralized Standardized Downloads API
+      // 2. Fetch Historical Releases & Latest Downloads
       try {
-        const dlRes = await fetch(`${DOWNLOAD_API_BASE}/api/v1/vexta/latest`);
-        const dlData = await safeJsonParse(dlRes);
-        if (dlData) {
-          setLatestClientVersion(dlData.latest_version || '2.0.0');
+        let releasesRes = await fetch(`${DOWNLOAD_API_BASE}/api/v1/vexta/releases`);
+        let releasesData = await safeJsonParse(releasesRes);
 
-          if (dlData.artifacts && Object.keys(dlData.artifacts).length > 0) {
-            const detectPlatform = (art) => {
-              const name = (art.filename || '').toLowerCase();
-              const key = (art.key || '').toLowerCase();
-              const plat = (art.platform || '').toLowerCase();
-              if (plat === 'windows' || key.includes('win') || name.includes('win') || name.endsWith('.exe') || name.endsWith('.zip')) {
-                return 'windows';
-              }
-              if (plat === 'linux' || key.includes('linux') || name.includes('linux') || name.endsWith('.appimage') || name.endsWith('.deb') || name.endsWith('.tar.gz') || name.endsWith('.tgz')) {
-                return 'linux';
-              }
-              if (plat === 'macos' || key.includes('mac') || name.includes('mac') || name.endsWith('.dmg') || name.endsWith('.pkg')) {
-                return 'macos';
-              }
-              if (plat === 'android' || key.includes('android') || name.endsWith('.apk')) {
-                return 'android';
-              }
-              return plat || 'windows';
-            };
+        if (releasesData && releasesData.releases && releasesData.releases.length > 0) {
+          const releases = releasesData.releases;
+          setAllReleases(releases);
+          const versions = releases.map((r) => r.latest_version || r.version);
+          setAvailableVersions(versions);
+          const latestVer = versions[0];
+          setLatestClientVersion(latestVer);
+          setSelectedVersion(latestVer);
+          setClientDownloads(parseReleaseArtifacts(releases[0]));
 
-            const validArtifacts = Object.values(dlData.artifacts).filter((art) => {
-              const fn = (art.filename || '').toLowerCase();
-              return (
-                !fn.endsWith('.yml') &&
-                !fn.endsWith('.yaml') &&
-                !fn.endsWith('.json') &&
-                !fn.endsWith('.map') &&
-                !fn.includes('builder-debug')
-              );
-            });
-
-            const list = validArtifacts.map((art) => ({
-              filename: art.filename,
-              version: dlData.latest_version || '0.0.1',
-              platform_key: detectPlatform(art),
-              key: art.key,
-              size: art.size_human || '15 MB',
-              sha256: art.sha256 || (dlData.checksums ? (dlData.checksums[(art.key || '') + '_sha256'] || dlData.checksums.sha256) : ''),
-              url: art.url,
-              format: art.format || '',
-              arch: art.arch || 'x64',
-            }));
-            setClientDownloads(list);
-          } else if (dlData.downloads && Object.keys(dlData.downloads).length > 0) {
-            const list = Object.entries(dlData.downloads).map(([key, url]) => ({
-              filename: url.split('/').pop(),
-              version: dlData.latest_version || '2.0.0',
-              platform_key: key.startsWith('windows') ? 'windows' : key.startsWith('linux') ? 'linux' : key.startsWith('macos') ? 'macos' : 'windows',
-              key: key,
-              size: '15 MB',
-              sha256: (dlData.checksums && (dlData.checksums[key + '_sha256'] || dlData.checksums.sha256)) || '',
-              url: url,
-              format: key,
-              arch: 'x64'
-            }));
-            setClientDownloads(list);
-          }
+          const older = releases.slice(1).flatMap((r) => parseReleaseArtifacts(r));
+          setOlderDownloads(older);
         } else {
-          throw new Error('Downloads server response not OK or not JSON');
+          // Fallback to /latest endpoint
+          const dlRes = await fetch(`${DOWNLOAD_API_BASE}/api/v1/vexta/latest`);
+          const dlData = await safeJsonParse(dlRes);
+          if (dlData) {
+            const ver = dlData.latest_version || '0.0.11';
+            setLatestClientVersion(ver);
+            setSelectedVersion(ver);
+            setAvailableVersions([ver]);
+            setAllReleases([dlData]);
+            setClientDownloads(parseReleaseArtifacts(dlData));
+          }
         }
       } catch (dlErr) {
         console.warn('Centralized downloads server unreachable, falling back to bridge API:', dlErr);
@@ -164,6 +202,10 @@ export function AppProvider({ children }) {
             setClientDownloads(dlData.downloads || []);
             setOlderDownloads(dlData.older_downloads || []);
             setLatestClientVersion(dlData.latest_version || null);
+            if (dlData.latest_version) {
+              setAvailableVersions([dlData.latest_version]);
+              setSelectedVersion(dlData.latest_version);
+            }
           }
         } catch {}
       }
@@ -210,6 +252,11 @@ export function AppProvider({ children }) {
         announcements,
         clientDownloads,
         olderDownloads,
+        allReleases,
+        availableVersions,
+        selectedVersion,
+        setSelectedVersion,
+        selectReleaseByVersion,
         latestClientVersion,
         loading,
         apiBaseUrl: API_BASE,

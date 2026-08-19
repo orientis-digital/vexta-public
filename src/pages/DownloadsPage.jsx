@@ -3,7 +3,15 @@ import { useApp } from '../context/AppContext';
 import confetti from 'canvas-confetti';
 
 export default function DownloadsPage() {
-  const { clientDownloads, olderDownloads } = useApp();
+  const {
+    clientDownloads,
+    olderDownloads,
+    allReleases,
+    availableVersions,
+    selectedVersion,
+    selectReleaseByVersion,
+    latestClientVersion,
+  } = useApp();
   const [tab, setTab] = useState('windows');
   const [copiedHash, setCopiedHash] = useState(null);
   const [verifyHashInput, setVerifyHashInput] = useState('');
@@ -12,14 +20,12 @@ export default function DownloadsPage() {
   const latestExe = clientDownloads.find((d) => d.platform_key === 'windows' && !d.filename.endsWith('.zip'));
   const latestZip = clientDownloads.find((d) => d.platform_key === 'windows' && d.filename.endsWith('.zip'));
 
-  // Historical 5 versions
+  // Historical builds
   const olderExeList = olderDownloads
-    .filter((d) => d.platform_key === 'windows' && d.filename.endsWith('.exe'))
-    .slice(0, 5);
+    .filter((d) => d.platform_key === 'windows' && d.filename.endsWith('.exe'));
 
   const olderZipList = olderDownloads
-    .filter((d) => d.platform_key === 'windows' && d.filename.endsWith('.zip'))
-    .slice(0, 5);
+    .filter((d) => d.platform_key === 'windows' && d.filename.endsWith('.zip'));
 
   const androidDownloads = clientDownloads.filter((d) => d.platform_key === 'android');
   const linuxDownloads = clientDownloads.filter((d) => d.platform_key === 'linux');
@@ -37,6 +43,8 @@ export default function DownloadsPage() {
     });
     if (dl.url) {
       window.open(dl.url, '_blank');
+    } else if (dl.platform_key && dl.version) {
+      window.open(`https://downloads.nexusec.space/api/v1/vexta/download/${dl.version}/${dl.platform_key}`, '_blank');
     } else if (dl.platform_key) {
       window.open(`https://downloads.nexusec.space/api/v1/vexta/download/${dl.platform_key}`, '_blank');
     }
@@ -56,7 +64,7 @@ export default function DownloadsPage() {
     : null;
 
   return (
-    <div className="flex flex-col gap-12 py-4 min-h-[75vh]">
+    <div className="flex flex-col gap-10 py-4 min-h-[75vh]">
       {/* Header Hero */}
       <div className="glass-panel p-8 md:p-10 rounded-3xl text-center flex flex-col gap-4 relative overflow-hidden border border-white/10 shadow-2xl">
         <div className="absolute inset-0 bg-gradient-to-tr from-[#5F7057]/10 via-transparent to-[#D97706]/10 -z-10"></div>
@@ -70,6 +78,44 @@ export default function DownloadsPage() {
           Download official Vexta Messenger binaries. All encryption and key generation take place locally on device.
         </p>
       </div>
+
+      {/* Version Selector Bar */}
+      {availableVersions && availableVersions.length > 0 && (
+        <div className="glass-panel p-4 md:p-5 rounded-2xl flex flex-col md:flex-row items-center justify-between gap-4 border border-white/10 shadow-lg">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-lg bg-[#D97706]/20 flex items-center justify-center text-[#D97706] text-sm">
+              <i className="fa-solid fa-code-branch"></i>
+            </div>
+            <div>
+              <span className="text-xs font-mono font-bold text-white uppercase tracking-wider block">
+                Target Release Version
+              </span>
+              <span className="text-[10px] text-gray-400 font-sans">
+                Currently showing packages for <strong className="text-[#D6C5B3]">v{selectedVersion || latestClientVersion}</strong>
+              </span>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2">
+            {availableVersions.map((v, idx) => (
+              <button
+                key={v}
+                onClick={() => selectReleaseByVersion(v)}
+                className={`px-3 py-1.5 rounded-xl font-mono text-xs uppercase tracking-wider transition-all cursor-pointer flex items-center gap-1.5 ${
+                  (selectedVersion || latestClientVersion) === v
+                    ? 'bg-[#D97706] text-white font-bold shadow-tech-sm'
+                    : 'bg-white/5 hover:bg-white/10 text-gray-300 border border-white/10'
+                }`}
+              >
+                <span>v{v}</span>
+                {idx === 0 && (
+                  <span className="bg-black/30 text-[8px] px-1.5 py-0.5 rounded font-bold">LATEST</span>
+                )}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Platform Selector Tabs */}
       <div className="flex flex-wrap border-b border-white/10 gap-3 select-none">
