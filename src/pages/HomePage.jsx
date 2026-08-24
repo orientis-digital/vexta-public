@@ -2,6 +2,15 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 
+const PHRASES = [
+  'RSA-4096 Asymmetric Identity Authentication',
+  'Blind Envelope Routing Protocol (Zero Metadata Retention)',
+  'Real-Time Peer-to-Peer WebRTC Voice & Video Calling',
+  'Binary MessagePack WebSocket Framing',
+  'Client-Side AES-256-GCM Payload Encryption',
+  'Messenger-Style Real-Time Presence Engine'
+];
+
 export default function HomePage() {
   const {
     latestClientVersion,
@@ -18,21 +27,13 @@ export default function HomePage() {
   }, []);
 
   // Typewriter effect state
-  const phrases = [
-    'RSA-4096 Asymmetric Identity Authentication',
-    'Blind Envelope Routing Protocol (Zero Metadata Retention)',
-    'Real-Time Peer-to-Peer WebRTC Voice & Video Calling',
-    'Binary MessagePack WebSocket Framing',
-    'Client-Side AES-256-GCM Payload Encryption',
-    'Messenger-Style Real-Time Presence Engine'
-  ];
   const [typewriterText, setTypewriterText] = useState('');
   const [phraseIdx, setPhraseIdx] = useState(0);
   const [charIdx, setCharIdx] = useState(0);
   const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
-    const currentPhrase = phrases[phraseIdx];
+    const currentPhrase = PHRASES[phraseIdx];
     let timer;
 
     if (!isDeleting && charIdx < currentPhrase.length) {
@@ -51,114 +52,67 @@ export default function HomePage() {
       }, 25);
     } else if (isDeleting && charIdx === 0) {
       setIsDeleting(false);
-      setPhraseIdx((phraseIdx + 1) % phrases.length);
+      setPhraseIdx((phraseIdx + 1) % PHRASES.length);
     }
 
     return () => clearTimeout(timer);
   }, [charIdx, isDeleting, phraseIdx]);
 
-  // Simulator state
-  const [phase, setPhase] = useState(0);
+  // Simplified 3-Step Simulator State
+  const [step, setStep] = useState(1);
   const [isPlaying, setIsPlaying] = useState(true);
-  const [logs, setLogs] = useState([]);
-  const simTimeoutRef = useRef(null);
+  const stepTimerRef = useRef(null);
 
-  const addLog = (text, type) => {
-    const timestamp = new Date().toLocaleTimeString();
-    setLogs((prev) => [{ id: Math.random(), timestamp, text, type }, ...prev.slice(0, 39)]);
-  };
-
-  const runPhaseEffects = (p) => {
-    if (p === 0) {
-      addLog('SYSTEM READY // STANDBY FOR ENVELOPE ROUTING DEMO', 'info');
-    } else if (p === 1) {
-      addLog('Alice: Drafted message plaintext = "Hello Bob! Key exchange complete."', 'info');
-      addLog('Alice: Generated ephemeral session key (AES-256-GCM). Sealed payload locally.', 'success');
-      addLog('Alice: Encrypted AES key using Bob\'s RSA-4096 public key (RSA-OAEP).', 'success');
-    } else if (p === 2) {
-      addLog('Alice: Transmitting 512-byte binary envelope payload to Vexta Bridge over WSS...', 'info');
-      addLog('Network: Upload pipeline active. Zero server headers injected.', 'warning');
-    } else if (p === 3) {
-      addLog('Server: Envelope received. Target hash: SHA-256(Bob\'s PubKey).', 'info');
-      addLog('Server: METADATA BLIND CHECK PASS - Payload is AES-GCM locked. Relay cannot inspect body.', 'danger');
-      addLog('Server: Envelope buffered in volatile RAM memory (Zero Disk Storage).', 'success');
-    } else if (p === 4) {
-      addLog('Bob: Socket connected. Emitted challenge nonce to server.', 'info');
-      addLog('Bob: Signed challenge locally with local RSA-4096 private key.', 'info');
-      addLog('Server: Signature verified against Bob\'s public key identity. Session authenticated.', 'success');
-    } else if (p === 5) {
-      addLog('Server: Flushed RAM queue. Relaying blind envelope directly to Bob\'s socket.', 'info');
-      addLog('Bob: Received envelope. Decrypted session key using private RSA key.', 'success');
-      addLog('Bob: Decrypted payload. Plaintext = "Hello Bob! Key exchange complete."', 'success');
+  const steps = [
+    {
+      id: 1,
+      title: '1. Local Encryption (Alice)',
+      node: 'alice',
+      actionBadge: 'AES-256-GCM + RSA SEALED',
+      badgeColor: 'text-[#D97706] border-[#D97706]/40 bg-[#D97706]/10',
+      description: 'Alice types "Hello Bob!". The client generates an ephemeral AES-256 key, seals the payload locally, and encrypts the key with Bob\'s RSA-4096 public key.',
+      status: 'Payload sealed on device before reaching network.'
+    },
+    {
+      id: 2,
+      title: '2. Blind Relay Routing (Server)',
+      node: 'relay',
+      actionBadge: 'ZERO-KNOWLEDGE RAM BUFFER',
+      badgeColor: 'text-[#D6C5B3] border-[#5F7057]/40 bg-[#5F7057]/20',
+      description: 'The relay inspects only the recipient target hash SHA-256(BobPubKey). The encrypted envelope is buffered strictly in volatile RAM memory with zero disk persistence.',
+      status: 'Relay is blind to message plaintext and session keys.'
+    },
+    {
+      id: 3,
+      title: '3. Local Decryption (Bob)',
+      node: 'bob',
+      actionBadge: 'RSA-4096 UNLOCKED',
+      badgeColor: 'text-[#4ADE80] border-[#4ADE80]/40 bg-[#4ADE80]/10',
+      description: 'Bob authenticates with a signed challenge. The server relays the envelope to Bob\'s socket. Bob decrypts the AES key with his private RSA key and reads the plaintext.',
+      status: 'Decryption succeeded on recipient device.'
     }
-  };
+  ];
 
   useEffect(() => {
-    addLog('SYSTEM INITIALIZED // BLIND WEBSOCKET RELAY OPERATIONAL', 'info');
-  }, []);
-
-  useEffect(() => {
-    let interval;
     if (isPlaying) {
-      interval = setInterval(() => {
-        setPhase((prev) => {
-          const next = (prev + 1) % 6;
-          runPhaseEffects(next);
-          return next;
-        });
-      }, 5500);
+      stepTimerRef.current = setInterval(() => {
+        setStep((prev) => (prev % 3) + 1);
+      }, 4000);
     }
-    return () => clearInterval(interval);
+    return () => {
+      if (stepTimerRef.current) clearInterval(stepTimerRef.current);
+    };
   }, [isPlaying]);
 
-  const triggerSimulation = () => {
-    setIsPlaying(false);
-    setPhase(0);
-    setLogs([]);
-    addLog('MANUAL SIMULATION INITIATED // SYSTEM RESET', 'info');
-
-    if (simTimeoutRef.current) clearTimeout(simTimeoutRef.current);
-
-    setTimeout(() => {
-      setPhase(1);
-      runPhaseEffects(1);
-
-      let step = 2;
-      const runSteps = () => {
-        simTimeoutRef.current = setTimeout(() => {
-          setPhase(step);
-          runPhaseEffects(step);
-          step++;
-          if (step <= 5) {
-            runSteps();
-          } else {
-            setTimeout(() => {
-              setIsPlaying(true);
-            }, 4000);
-          }
-        }, 3200);
-      };
-      runSteps();
-    }, 1000);
-  };
-
-  const jumpToPhase = (p) => {
-    setIsPlaying(false);
-    setPhase(p);
-    runPhaseEffects(p);
-  };
-
-  const togglePlay = () => {
-    setIsPlaying(!isPlaying);
-  };
+  const currentStepInfo = steps.find((s) => s.id === step) || steps[0];
 
   // Helper labels for detected OS
   const getOsLabel = () => {
-    if (detectedOS === 'windows') return { name: 'Windows', icon: 'fa-brands fa-windows', format: '.exe / .zip' };
-    if (detectedOS === 'linux') return { name: 'Linux', icon: 'fa-brands fa-linux', format: '.AppImage / .deb' };
-    if (detectedOS === 'macos') return { name: 'macOS', icon: 'fa-brands fa-apple', format: '.dmg' };
-    if (detectedOS === 'android') return { name: 'Android', icon: 'fa-brands fa-android', format: '.apk' };
-    return { name: 'Windows', icon: 'fa-brands fa-windows', format: '.exe' };
+    if (detectedOS === 'windows') return { name: 'Windows', icon: 'fa-brands fa-windows' };
+    if (detectedOS === 'linux') return { name: 'Linux', icon: 'fa-brands fa-linux' };
+    if (detectedOS === 'macos') return { name: 'macOS', icon: 'fa-brands fa-apple' };
+    if (detectedOS === 'android') return { name: 'Android', icon: 'fa-brands fa-android' };
+    return { name: 'Windows', icon: 'fa-brands fa-windows' };
   };
 
   const osInfo = getOsLabel();
@@ -204,7 +158,7 @@ export default function HomePage() {
             href="#demo-simulator"
             className="px-6 py-4 font-bold transition-all duration-300 text-xs bg-[#141813] text-white border border-[#D97706]/40 hover:border-[#D97706] hover:bg-[#D97706]/15 uppercase tracking-widest rounded-xl select-none flex items-center gap-2 shadow-tech-sm"
           >
-            <i className="fa-solid fa-play text-xs text-[#D97706]"></i> Live Simulator
+            <i className="fa-solid fa-play text-xs text-[#D97706]"></i> Live Demo
           </a>
           <Link
             to="/docs"
@@ -331,194 +285,160 @@ export default function HomePage() {
       </section>
 
       {/* ========================================================================= */}
-      {/* 2. DEDICATED FULL-WIDTH DEMO SIMULATION SECTION */}
+      {/* 2. SIMPLIFIED & STREAMLINED 3-STEP PACKET ROUTING ANIMATION */}
       {/* ========================================================================= */}
-      <section id="demo-simulator" className="flex flex-col gap-8 scroll-mt-28">
-        {/* Section Title Header */}
-        <div className="flex flex-col gap-2 text-center max-w-3xl mx-auto">
+      <section id="demo-simulator" className="flex flex-col gap-6 scroll-mt-28">
+        
+        {/* Section Header */}
+        <div className="flex flex-col gap-2 text-center max-w-2xl mx-auto">
           <span className="text-[#D97706] text-xs font-bold uppercase tracking-widest font-mono">
-            // INTERACTIVE SHOWCASE & ARCHITECTURE DEMO
+            // HOW VEXTA WORKS
           </span>
           <h2 className="text-2xl md:text-3xl font-extrabold uppercase tracking-tight text-white font-sans">
-            Cryptographic Packet Routing Engine
+            End-to-End Cryptographic Lifecycle
           </h2>
           <p className="text-xs md:text-sm text-gray-400 font-sans leading-relaxed">
-            Observe in real-time how end-to-end encrypted envelopes travel across Vexta Relay Server without disclosing plaintexts, contact structures, or session keys.
+            See how messages flow from sender to recipient with zero server-side plaintext exposure.
           </p>
         </div>
 
-        {/* Expanded Simulator Main Card */}
-        <div className="solid-panel p-6 md:p-8 rounded-3xl border border-white/10 shadow-[0_12px_40px_rgba(0,0,0,0.6)] flex flex-col gap-6 relative overflow-hidden">
-          {/* Top Control Bar */}
-          <div className="flex flex-wrap items-center justify-between gap-4 border-b border-white/10 pb-4">
-            {/* Phase Selector Tabs */}
-            <div className="flex flex-wrap items-center gap-1.5 bg-[#0C0E0B]/60 p-1.5 rounded-xl border border-white/5">
-              {[
-                { p: 0, label: '0. Standby' },
-                { p: 1, label: '1. Local Encrypt' },
-                { p: 2, label: '2. Transmit Envelope' },
-                { p: 3, label: '3. RAM Blind Check' },
-                { p: 4, label: '4. Challenge Auth' },
-                { p: 5, label: '5. Decrypt Payload' }
-              ].map((item) => (
+        {/* Streamlined Visual Simulator Card */}
+        <div className="solid-panel p-6 md:p-8 rounded-3xl border border-white/10 shadow-[0_12px_40px_rgba(0,0,0,0.6)] flex flex-col gap-6 relative">
+          
+          {/* Top Step Selector & Controls */}
+          <div className="flex flex-wrap items-center justify-between gap-4 border-b border-[#293226] pb-4">
+            <div className="flex items-center gap-2">
+              {[1, 2, 3].map((s) => (
                 <button
-                  key={item.p}
-                  onClick={() => jumpToPhase(item.p)}
-                  className={`px-3 py-1.5 rounded-lg font-mono text-[10px] font-bold uppercase transition-all cursor-pointer ${
-                    phase === item.p
-                      ? 'bg-[#D97706] text-white shadow-[0_0_10px_rgba(217,119,6,0.3)]'
-                      : 'text-gray-400 hover:text-white hover:bg-white/5'
+                  key={s}
+                  onClick={() => {
+                    setIsPlaying(false);
+                    setStep(s);
+                  }}
+                  className={`px-3.5 py-1.5 rounded-xl font-mono text-xs uppercase font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                    step === s
+                      ? 'bg-[#D97706] text-white shadow-[0_0_12px_rgba(217,119,6,0.35)]'
+                      : 'bg-white/5 text-gray-400 hover:text-white hover:bg-white/10'
                   }`}
                 >
-                  {item.label}
+                  <span>Step {s}</span>
                 </button>
               ))}
             </div>
 
-            {/* Action Buttons */}
-            <div className="flex flex-wrap items-center gap-2">
-              <button
-                onClick={triggerSimulation}
-                className="px-4 py-2 border border-[#D97706] text-[#D97706] bg-[#D97706]/10 hover:bg-[#D97706]/25 rounded-xl font-mono text-xs font-bold uppercase transition-all duration-200 cursor-pointer flex items-center gap-1.5 shadow-tech-sm"
-              >
-                <i className="fa-solid fa-play text-xs"></i> Simulate Full Lifecycle
-              </button>
-              <button
-                onClick={togglePlay}
-                className="px-4 py-2 border border-white/10 text-gray-300 hover:text-white bg-white/5 hover:bg-white/10 rounded-xl font-mono text-xs font-bold uppercase transition-all duration-200 cursor-pointer flex items-center gap-1.5"
-              >
-                <i className={`fa-solid ${isPlaying ? 'fa-pause' : 'fa-play'} text-xs`}></i>
-                {isPlaying ? 'Pause Auto-Loop' : 'Resume Auto-Loop'}
-              </button>
-            </div>
+            <button
+              onClick={() => setIsPlaying(!isPlaying)}
+              className="px-3 py-1.5 rounded-xl font-mono text-xs text-[#D6C5B3] hover:text-white bg-white/5 hover:bg-white/10 border border-white/10 flex items-center gap-1.5 cursor-pointer transition-colors"
+            >
+              <i className={`fa-solid ${isPlaying ? 'fa-pause' : 'fa-play'} text-xs text-[#D97706]`}></i>
+              <span>{isPlaying ? 'Pause Loop' : 'Auto Play'}</span>
+            </button>
           </div>
 
-          {/* Graphical Topology Pipeline */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch relative">
-            {/* 1. Alice (Sender Node) */}
-            <div className={`p-6 rounded-2xl flex flex-col gap-4 border transition-all duration-500 ${
-              phase === 1 || phase === 2
-                ? 'bg-[#181D17] border-[#D97706] shadow-[0_0_25px_rgba(217,119,6,0.25)]'
-                : 'bg-[#0E110D] border-white/5'
+          {/* 3-Node Interactive Diagram */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 relative items-center">
+            
+            {/* NODE 1: ALICE */}
+            <div className={`p-5 rounded-2xl border transition-all duration-300 flex flex-col gap-3 ${
+              step === 1
+                ? 'bg-[#181D17] border-[#D97706] shadow-[0_0_20px_rgba(217,119,6,0.25)]'
+                : 'bg-[#0E110D] border-white/5 opacity-70'
             }`}>
-              <div className="flex items-center justify-between border-b border-white/10 pb-3">
+              <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2.5">
                   <div className="w-8 h-8 rounded-lg bg-[#D97706]/20 border border-[#D97706]/40 flex items-center justify-center text-[#D97706] font-mono text-xs font-bold">
                     A
                   </div>
                   <div>
-                    <h4 className="text-xs font-bold font-mono text-white uppercase">Alice Node</h4>
+                    <h4 className="text-xs font-bold text-white uppercase font-mono">Alice</h4>
                     <span className="text-[10px] text-[#8E9A87] font-mono">Origin Client</span>
                   </div>
                 </div>
-                <span className="text-[9px] font-mono bg-white/5 px-2 py-0.5 rounded text-[#D6C5B3]">PORT :51820</span>
+                {step === 1 && (
+                  <span className="w-2 h-2 rounded-full bg-[#D97706] animate-ping"></span>
+                )}
               </div>
-
-              <div className="flex flex-col gap-2 font-mono text-[11px] text-[#8E9A87]">
-                <div className="flex justify-between">
-                  <span>Payload:</span>
-                  <span className="text-white font-bold">{phase >= 1 ? '"Hello Bob!"' : 'Idle'}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Cipher Key:</span>
-                  <span className={phase >= 1 ? 'text-[#4ADE80] font-bold' : ''}>{phase >= 1 ? 'AES-256-GCM' : '--'}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Envelope:</span>
-                  <span className={phase >= 2 ? 'text-[#D97706] font-bold' : ''}>{phase >= 2 ? 'SEALED & SENT' : 'Standby'}</span>
-                </div>
+              <div className="text-[11px] font-mono text-gray-300 bg-[#0C0E0B] p-2.5 rounded-xl border border-white/5">
+                <div className="text-[9px] text-[#8E9A87] uppercase font-bold mb-0.5">Payload Status:</div>
+                <div className="text-white">{step === 1 ? '🔒 Sealing with Bob\'s RSA key' : '✓ Message Dispatched'}</div>
               </div>
             </div>
 
-            {/* 2. Vexta Relay Bridge (Zero-Knowledge Broker) */}
-            <div className={`p-6 rounded-2xl flex flex-col gap-4 border transition-all duration-500 ${
-              phase === 3
-                ? 'bg-[#181D17] border-[#5F7057] shadow-[0_0_25px_rgba(95,112,87,0.35)]'
-                : 'bg-[#0E110D] border-white/5'
+            {/* NODE 2: RELAY BRIDGE */}
+            <div className={`p-5 rounded-2xl border transition-all duration-300 flex flex-col gap-3 ${
+              step === 2
+                ? 'bg-[#181D17] border-[#5F7057] shadow-[0_0_20px_rgba(95,112,87,0.35)]'
+                : 'bg-[#0E110D] border-white/5 opacity-70'
             }`}>
-              <div className="flex items-center justify-between border-b border-white/10 pb-3">
+              <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2.5">
                   <div className="w-8 h-8 rounded-lg bg-[#5F7057]/20 border border-[#5F7057]/40 flex items-center justify-center text-[#D6C5B3] font-mono text-xs font-bold">
                     R
                   </div>
                   <div>
-                    <h4 className="text-xs font-bold font-mono text-white uppercase">Vexta Relay Node</h4>
-                    <span className="text-[10px] text-[#8E9A87] font-mono">Blind Socket Broker</span>
+                    <h4 className="text-xs font-bold text-white uppercase font-mono">Vexta Relay</h4>
+                    <span className="text-[10px] text-[#8E9A87] font-mono">Blind RAM Broker</span>
                   </div>
                 </div>
-                <span className="text-[9px] font-mono bg-[#4ADE80]/10 border border-[#4ADE80]/30 text-[#4ADE80] px-2 py-0.5 rounded font-bold">ACTIVE</span>
+                {step === 2 && (
+                  <span className="w-2 h-2 rounded-full bg-[#4ADE80] animate-ping"></span>
+                )}
               </div>
-
-              <div className="flex flex-col gap-2 font-mono text-[11px] text-[#8E9A87]">
-                <div className="flex justify-between">
-                  <span>Disk Storage:</span>
-                  <span className="text-[#4ADE80] font-bold">0 BYTES (RAM ONLY)</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Header Inspection:</span>
-                  <span className="text-[#EF4444] font-bold">DISABLED (BLIND)</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Target Hash:</span>
-                  <span className="text-[#D6C5B3]">{phase >= 3 ? 'SHA-256(BobPubKey)' : '--'}</span>
-                </div>
+              <div className="text-[11px] font-mono text-gray-300 bg-[#0C0E0B] p-2.5 rounded-xl border border-white/5">
+                <div className="text-[9px] text-[#8E9A87] uppercase font-bold mb-0.5">Relay Status:</div>
+                <div className="text-[#D6C5B3]">{step === 2 ? '⚡ Routing blind envelope in RAM' : 'Standby / Idle'}</div>
               </div>
             </div>
 
-            {/* 3. Bob (Receiver Node) */}
-            <div className={`p-6 rounded-2xl flex flex-col gap-4 border transition-all duration-500 ${
-              phase === 4 || phase === 5
-                ? 'bg-[#181D17] border-[#D97706] shadow-[0_0_25px_rgba(217,119,6,0.25)]'
-                : 'bg-[#0E110D] border-white/5'
+            {/* NODE 3: BOB */}
+            <div className={`p-5 rounded-2xl border transition-all duration-300 flex flex-col gap-3 ${
+              step === 3
+                ? 'bg-[#181D17] border-[#4ADE80] shadow-[0_0_20px_rgba(74,222,128,0.25)]'
+                : 'bg-[#0E110D] border-white/5 opacity-70'
             }`}>
-              <div className="flex items-center justify-between border-b border-white/10 pb-3">
+              <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-lg bg-[#D97706]/20 border border-[#D97706]/40 flex items-center justify-center text-[#D97706] font-mono text-xs font-bold">
+                  <div className="w-8 h-8 rounded-lg bg-[#4ADE80]/20 border border-[#4ADE80]/40 flex items-center justify-center text-[#4ADE80] font-mono text-xs font-bold">
                     B
                   </div>
                   <div>
-                    <h4 className="text-xs font-bold font-mono text-white uppercase">Bob Node</h4>
+                    <h4 className="text-xs font-bold text-white uppercase font-mono">Bob</h4>
                     <span className="text-[10px] text-[#8E9A87] font-mono">Recipient Client</span>
                   </div>
                 </div>
-                <span className="text-[9px] font-mono bg-white/5 px-2 py-0.5 rounded text-[#D6C5B3]">PORT :51821</span>
+                {step === 3 && (
+                  <span className="w-2 h-2 rounded-full bg-[#4ADE80] animate-ping"></span>
+                )}
               </div>
+              <div className="text-[11px] font-mono text-gray-300 bg-[#0C0E0B] p-2.5 rounded-xl border border-white/5">
+                <div className="text-[9px] text-[#8E9A87] uppercase font-bold mb-0.5">Recipient Status:</div>
+                <div className="text-[#4ADE80]">{step === 3 ? '🔓 Decrypted with Private Key' : 'Waiting for envelope'}</div>
+              </div>
+            </div>
 
-              <div className="flex flex-col gap-2 font-mono text-[11px] text-[#8E9A87]">
-                <div className="flex justify-between">
-                  <span>Session Key:</span>
-                  <span className={phase === 5 ? 'text-[#4ADE80] font-bold' : ''}>{phase === 5 ? 'DECRYPTED (RSA)' : 'Encrypted'}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Message Body:</span>
-                  <span className={phase === 5 ? 'text-white font-bold' : 'text-[#8E9A87]'}>{phase === 5 ? '"Hello Bob!"' : 'Waiting...'}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Integrity Check:</span>
-                  <span className={phase === 5 ? 'text-[#4ADE80] font-bold' : ''}>{phase === 5 ? 'PASSED (GCM)' : '--'}</span>
-                </div>
+          </div>
+
+          {/* Crisp Step Explainer Box */}
+          <div className="bg-[#0C0E0B] border border-[#293226] rounded-2xl p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+            <div className="flex flex-col gap-1">
+              <div className="flex items-center gap-2.5">
+                <span className="font-mono text-xs font-bold text-white uppercase">
+                  {currentStepInfo.title}
+                </span>
+                <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded border uppercase ${currentStepInfo.badgeColor}`}>
+                  {currentStepInfo.actionBadge}
+                </span>
               </div>
+              <p className="text-xs text-[#8E9A87] font-sans leading-relaxed mt-0.5">
+                {currentStepInfo.description}
+              </p>
+            </div>
+            <div className="text-[11px] font-mono text-[#D6C5B3] bg-[#141813] border border-white/10 px-3 py-1.5 rounded-xl shrink-0">
+              <i className="fa-solid fa-check text-[#4ADE80] mr-1.5"></i>
+              {currentStepInfo.status}
             </div>
           </div>
 
-          {/* Console Log Stream */}
-          <div className="flex flex-col gap-2 bg-[#0C0E0B] border border-white/10 rounded-2xl p-4 font-mono text-xs">
-            <div className="flex items-center justify-between border-b border-white/10 pb-2 text-[10px] text-[#8E9A87] font-bold uppercase tracking-wider">
-              <span>// Live Execution Stream</span>
-              <span>Buffer: {logs.length} events</span>
-            </div>
-            <div className="flex flex-col gap-1 max-h-48 overflow-y-auto pt-2">
-              {logs.map((log) => {
-                const color = log.type === 'success' ? 'text-[#4ADE80]' : log.type === 'danger' ? 'text-[#EF4444]' : log.type === 'warning' ? 'text-[#F59E0B]' : 'text-[#D6C5B3]';
-                return (
-                  <div key={log.id} className="flex gap-2">
-                    <span className="text-[#8E9A87] text-[10px]">{log.timestamp}</span>
-                    <span className={color}>{log.text}</span>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
         </div>
       </section>
 
