@@ -16,8 +16,8 @@ export default function Footer() {
         <div className="flex items-center justify-between border-b border-[#272D24]/50 pb-4 mb-8 flex-wrap gap-4 select-none">
           <div className="flex items-center gap-2">
             <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#D97706] opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-[#D97706]"></span>
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#4ADE80] opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-[#4ADE80]"></span>
             </span>
             <span className="font-mono text-[9px] tracking-widest uppercase text-[#D6C5B3] font-bold">
               // SECURE COMMUNICATION CHANNEL ACTIVE
@@ -33,15 +33,15 @@ export default function Footer() {
           {/* Column 1: Brand & Details */}
           <div className="flex flex-col text-sm gap-4">
             <NavLink to="/" className="flex items-center gap-3.5 no-underline group cursor-pointer self-start">
-              <div className="relative w-9 h-9 border border-emerald-500/30 rounded-xl flex items-center justify-center bg-emerald-950/20 shadow-[0_0_10px_rgba(16,185,129,0.2)] group-hover:shadow-[0_0_18px_rgba(16,185,129,0.45)] group-hover:border-emerald-400 transition-all duration-300 p-1.5 overflow-hidden">
+              <div className="relative w-9 h-9 border border-[#D97706]/30 rounded-xl flex items-center justify-center bg-[#D97706]/10 shadow-[0_0_10px_rgba(217,119,6,0.15)] group-hover:shadow-[0_0_18px_rgba(217,119,6,0.35)] group-hover:border-[#D97706] transition-all duration-300 p-1.5 overflow-hidden">
                 <img src="/img/vexta-logo.png" alt="Vexta Logo" className="w-full h-full object-contain rounded-lg transition-transform duration-300 group-hover:scale-105" />
               </div>
               <div className="flex flex-col justify-center">
                 <div className="flex items-center gap-1">
-                  <span className="font-sans text-xs font-bold bg-gradient-to-r from-emerald-400 via-[#D6C5B3] to-[#D97706] bg-clip-text text-transparent tracking-tight leading-none uppercase">
+                  <span className="font-sans text-xs font-bold bg-gradient-to-r from-[#D6C5B3] via-[#D97706] to-[#5F7057] bg-clip-text text-transparent tracking-tight leading-none uppercase">
                     {bridgeName}
                   </span>
-                  <span className="text-emerald-400 animate-blink font-bold text-xs leading-none">_</span>
+                  <span className="text-[#D97706] animate-blink font-bold text-xs leading-none">_</span>
                 </div>
                 <span className="font-sans text-[0.45rem] text-[#7C8775] tracking-[0.2em] uppercase mt-0.5 border-t border-[#272D24]/50 pt-0.5 inline-block w-full">
                   Developed by Orientis Digital
@@ -58,71 +58,58 @@ export default function Footer() {
             <h4 className="text-xs font-bold text-white uppercase tracking-widest border-b border-[#272D24]/50 pb-2">
               // Directory Registry
             </h4>
-            <ul className="grid grid-cols-2 gap-x-4 gap-y-2.5 list-none">
-              <li>
-                <NavLink to="/" className="group flex items-center gap-1.5 text-[#7C8775] no-underline transition-all hover:text-[#D6C5B3] cursor-pointer font-mono text-[10px] uppercase tracking-wide">
-                  <span className="text-[#D97706] transition-transform group-hover:translate-x-1 font-bold">&gt;</span> Home
-                </NavLink>
-              </li>
-              <li>
-                <NavLink to="/docs" className="group flex items-center gap-1.5 text-[#7C8775] no-underline transition-all hover:text-[#D6C5B3] cursor-pointer font-mono text-[10px] uppercase tracking-wide">
-                  <span className="text-[#D97706] transition-transform group-hover:translate-x-1 font-bold">&gt;</span> Docs
-                </NavLink>
-              </li>
-              <li>
-                <NavLink to="/downloads" className="group flex items-center gap-1.5 text-[#7C8775] no-underline transition-all hover:text-[#D6C5B3] cursor-pointer font-mono text-[10px] uppercase tracking-wide">
-                  <span className="text-[#D97706] transition-transform group-hover:translate-x-1 font-bold">&gt;</span> Downloads
-                </NavLink>
-              </li>
-              <li>
-                <NavLink to="/announcements" className="group flex items-center gap-1.5 text-[#7C8775] no-underline transition-all hover:text-[#D6C5B3] cursor-pointer font-mono text-[10px] uppercase tracking-wide">
-                  <span className="text-[#D97706] transition-transform group-hover:translate-x-1 font-bold">&gt;</span> Broadcasts
-                </NavLink>
-              </li>
-              <li>
-                <NavLink to="/about" className="group flex items-center gap-1.5 text-[#7C8775] no-underline transition-all hover:text-[#D6C5B3] cursor-pointer font-mono text-[10px] uppercase tracking-wide">
-                  <span className="text-[#D97706] transition-transform group-hover:translate-x-1 font-bold">&gt;</span> About
-                </NavLink>
-              </li>
-              <li>
-                <NavLink to="/faq" className="group flex items-center gap-1.5 text-[#7C8775] no-underline transition-all hover:text-[#D6C5B3] cursor-pointer font-mono text-[10px] uppercase tracking-wide">
-                  <span className="text-[#D97706] transition-transform group-hover:translate-x-1 font-bold">&gt;</span> FAQ
-                </NavLink>
-              </li>
-              <li className="col-span-2 pt-1 border-t border-white/5">
-                <a href="/about#report-issue" className="group flex items-center gap-1.5 text-[#D97706] hover:text-white no-underline transition-all cursor-pointer font-mono text-[10px] uppercase tracking-wide font-bold">
-                  <span className="text-red-400 transition-transform group-hover:translate-x-1 font-bold">&gt;</span> Report Bug / Vulnerability
-                </a>
-              </li>
-            </ul>
+            <div className="grid grid-cols-2 gap-2 text-xs font-sans">
+              <NavLink to="/" className="text-[#8E9A87] hover:text-[#D97706] transition-colors py-1">
+                Home Gateway
+              </NavLink>
+              <NavLink to="/docs" className="text-[#8E9A87] hover:text-[#D97706] transition-colors py-1">
+                Protocol Specs
+              </NavLink>
+              <NavLink to="/downloads" className="text-[#8E9A87] hover:text-[#D97706] transition-colors py-1">
+                Client Releases
+              </NavLink>
+              <NavLink to="/announcements" className="text-[#8E9A87] hover:text-[#D97706] transition-colors py-1">
+                Dispatches
+              </NavLink>
+              <NavLink to="/about" className="text-[#8E9A87] hover:text-[#D97706] transition-colors py-1">
+                About Orientis
+              </NavLink>
+              <NavLink to="/faq" className="text-[#8E9A87] hover:text-[#D97706] transition-colors py-1">
+                Security FAQ
+              </NavLink>
+            </div>
           </div>
 
-          {/* Column 3: Live Protocol Status Widget */}
+          {/* Column 3: Cryptographic Specs */}
           <div className="flex flex-col gap-4">
             <h4 className="text-xs font-bold text-white uppercase tracking-widest border-b border-[#272D24]/50 pb-2">
-              // Protocol Status Diagnostics
+              // Relay Guarantees
             </h4>
-            <div className="glass-panel p-4 rounded-xl flex flex-col gap-2 font-mono text-[10px] border border-white/5">
-              <div className="flex justify-between items-center text-[#7C8775]">
-                <span>RELAY STATUS:</span>
-                <span className="text-green-400 font-bold uppercase">100% OPERATIONAL</span>
+            <div className="flex flex-col gap-2 font-mono text-[11px] text-[#8E9A87]">
+              <div className="flex items-center gap-2">
+                <i className="fa-solid fa-shield-halved text-[#D97706] text-xs"></i>
+                <span>Zero Server Plaintext Storage</span>
               </div>
-              <div className="flex justify-between items-center text-[#7C8775]">
-                <span>CIPHER SUITE:</span>
-                <span className="text-[#D6C5B3]">RSA-OAEP / AES-256</span>
+              <div className="flex items-center gap-2">
+                <i className="fa-solid fa-key text-[#5F7057] text-xs"></i>
+                <span>RSA-4096 / AES-256-GCM Hybrid</span>
               </div>
-              <div className="flex justify-between items-center text-[#7C8775]">
-                <span>RETENTION POLICY:</span>
-                <span className="text-[#D97706]">ZERO PLAINTEXT LOGS</span>
+              <div className="flex items-center gap-2">
+                <i className="fa-solid fa-bolt text-[#D6C5B3] text-xs"></i>
+                <span>Binary WebSocket Framing</span>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Bottom Rights Bar */}
-        <div className="pt-6 border-t border-[#272D24]/40 flex justify-between items-center text-[10px] font-mono text-[#7C8775] flex-wrap gap-2">
-          <span>&copy; 2026 Orientis Digital. All Rights Reserved.</span>
-          <span>Zero-Knowledge Relay Server Protocol v1.2.0</span>
+        {/* Bottom Copyright Bar */}
+        <div className="pt-6 border-t border-[#272D24]/50 flex flex-col md:flex-row items-center justify-between text-[11px] text-[#7C8775] font-sans gap-2 select-none">
+          <div>
+            &copy; {new Date().getFullYear()} Orientis Digital. All Rights Reserved.
+          </div>
+          <div className="font-mono text-[10px] text-[#8E9A87]">
+            Vexta Messenger // High-Assurance Communications
+          </div>
         </div>
       </div>
     </footer>

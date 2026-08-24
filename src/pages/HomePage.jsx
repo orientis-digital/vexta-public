@@ -4,9 +4,19 @@ import { useApp } from '../context/AppContext';
 
 export default function HomePage() {
   const {
-    totalUsers,
-    onlineUsers
+    latestClientVersion,
+    clientDownloads,
   } = useApp();
+
+  // OS Detection State
+  const [detectedOS, setDetectedOS] = useState('windows');
+  useEffect(() => {
+    const ua = (typeof window !== 'undefined' && navigator.userAgent) ? navigator.userAgent.toLowerCase() : '';
+    if (ua.includes('win')) setDetectedOS('windows');
+    else if (ua.includes('android')) setDetectedOS('android');
+    else if (ua.includes('linux')) setDetectedOS('linux');
+    else if (ua.includes('mac') || ua.includes('darwin')) setDetectedOS('macos');
+  }, []);
 
   // Typewriter effect state
   const phrases = [
@@ -123,11 +133,15 @@ export default function HomePage() {
           step++;
           if (step <= 5) {
             runSteps();
+          } else {
+            setTimeout(() => {
+              setIsPlaying(true);
+            }, 4000);
           }
         }, 3200);
       };
       runSteps();
-    }, 400);
+    }, 1000);
   };
 
   const jumpToPhase = (p) => {
@@ -137,31 +151,29 @@ export default function HomePage() {
   };
 
   const togglePlay = () => {
-    const nextPlay = !isPlaying;
-    setIsPlaying(nextPlay);
-    addLog(nextPlay ? 'RESUMED AUTOMATIC SIMULATION LOOP' : 'PAUSED SIMULATION LOOP', 'warning');
+    setIsPlaying(!isPlaying);
   };
 
-  const resetSimulation = () => {
-    setPhase(0);
-    setLogs([]);
-    if (simTimeoutRef.current) clearTimeout(simTimeoutRef.current);
-    addLog('SYSTEM RESET // STANDBY', 'info');
+  // Helper labels for detected OS
+  const getOsLabel = () => {
+    if (detectedOS === 'windows') return { name: 'Windows', icon: 'fa-brands fa-windows', format: '.exe / .zip' };
+    if (detectedOS === 'linux') return { name: 'Linux', icon: 'fa-brands fa-linux', format: '.AppImage / .deb' };
+    if (detectedOS === 'macos') return { name: 'macOS', icon: 'fa-brands fa-apple', format: '.dmg' };
+    if (detectedOS === 'android') return { name: 'Android', icon: 'fa-brands fa-android', format: '.apk' };
+    return { name: 'Windows', icon: 'fa-brands fa-windows', format: '.exe' };
   };
 
-  const filteredLogs = logs.filter((log) => {
-    if (logFilter === 'all') return true;
-    return log.type === logFilter;
-  });
+  const osInfo = getOsLabel();
 
   return (
-    <div className="flex flex-col gap-24 py-4">
+    <div className="flex flex-col gap-20 py-4">
       {/* ========================================================================= */}
       {/* 1. HERO SECTION */}
       {/* ========================================================================= */}
-      <section className="flex flex-col items-center text-center gap-8 py-10 relative overflow-hidden">
+      <section className="flex flex-col items-center text-center gap-8 py-8 relative overflow-hidden">
+        
         {/* Main Title */}
-        <h1 className="text-[clamp(2.2rem,6vw,4.5rem)] font-extrabold tracking-tight leading-[1.02] text-white uppercase max-w-5xl">
+        <h1 className="text-[clamp(2.2rem,6vw,4.25rem)] font-extrabold tracking-tight leading-[1.05] text-white uppercase max-w-5xl">
           Zero-Knowledge.<br />
           <span className="bg-gradient-to-r from-[#D6C5B3] via-[#D97706] to-[#5F7057] bg-clip-text text-transparent">
             Blind Envelope Routing Server.
@@ -169,36 +181,153 @@ export default function HomePage() {
         </h1>
 
         {/* Typewriter Line */}
-        <div className="flex items-center justify-center gap-2 h-8 font-mono text-sm md:text-base text-gray-300 font-bold bg-[#151813]/80 border border-white/5 px-6 py-1.5 rounded-full shadow-inner">
-          <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span>
+        <div className="flex items-center justify-center gap-2 h-8 font-mono text-xs md:text-sm text-gray-300 font-bold bg-[#141813] border border-[#293226] px-5 py-1.5 rounded-full shadow-inner">
+          <span className="w-2 h-2 rounded-full bg-[#4ADE80] animate-pulse"></span>
           <span className="typewriter text-[#D6C5B3]">{typewriterText}</span>
         </div>
 
         {/* Hero Paragraph & Specs */}
-        <p className="text-xs md:text-sm text-gray-200 leading-relaxed max-w-3xl font-sans border border-[#293226] p-6 bg-[#141813] rounded-2xl shadow-xl">
-          &gt; Vexta is a metadata-blind WebSocket relay node engineered by <strong>Orientis Digital</strong>. Messages are sealed locally on end devices using hybrid cryptography (RSA-4096 + AES-GCM-256) before entering the network pipeline. The relay holds <strong>zero database storage for plaintexts</strong>, <strong>no private keys</strong>, and <strong>no metadata tracking</strong>.
+        <p className="text-xs md:text-sm text-gray-300 leading-relaxed max-w-2xl font-sans">
+          Vexta routes cryptographically sealed envelopes across a metadata-blind WebSocket relay network.
+          Payloads are locked end-to-end with <strong>RSA-4096 + AES-256-GCM</strong> on device with <strong>zero server plaintext storage</strong>.
         </p>
 
-        {/* Primary CTA Action Bar */}
-        <div className="flex flex-wrap items-center justify-center gap-5 mt-2">
+        {/* Primary Smart CTA Action Bar */}
+        <div className="flex flex-wrap items-center justify-center gap-4 mt-1">
           <Link
             to="/downloads"
-            className="px-8 py-4 font-extrabold transition-all duration-300 text-xs bg-gradient-to-r from-[#5F7057] to-[#D97706] text-white hover:shadow-[0_0_25px_rgba(217,119,6,0.4)] hover:-translate-y-1 uppercase tracking-widest rounded-xl cursor-pointer select-none flex items-center gap-2"
+            className="px-8 py-4 font-extrabold transition-all duration-300 text-xs bg-gradient-to-r from-[#5F7057] to-[#D97706] text-white hover:shadow-[0_0_25px_rgba(217,119,6,0.4)] hover:-translate-y-0.5 uppercase tracking-widest rounded-xl cursor-pointer select-none flex items-center gap-2.5 shadow-lg"
           >
-            <i className="fa-solid fa-download text-sm"></i> Download Client Installer
+            <i className={`${osInfo.icon} text-sm`}></i>
+            <span>Download for {osInfo.name}</span>
+            <span className="text-[10px] bg-black/30 px-1.5 py-0.5 rounded font-mono font-bold">v{latestClientVersion || '0.0.10'}</span>
           </Link>
           <a
             href="#demo-simulator"
-            className="px-8 py-4 font-bold transition-all duration-300 text-xs bg-[#151813] text-white border border-[#D97706]/40 hover:border-[#D97706] hover:bg-[#D97706]/15 uppercase tracking-widest rounded-xl select-none flex items-center gap-2 shadow-tech-sm"
+            className="px-6 py-4 font-bold transition-all duration-300 text-xs bg-[#141813] text-white border border-[#D97706]/40 hover:border-[#D97706] hover:bg-[#D97706]/15 uppercase tracking-widest rounded-xl select-none flex items-center gap-2 shadow-tech-sm"
           >
-            <i className="fa-solid fa-play text-sm text-[#D97706]"></i> Explore Live Simulator
+            <i className="fa-solid fa-play text-xs text-[#D97706]"></i> Live Simulator
           </a>
           <Link
             to="/docs"
-            className="px-8 py-4 font-bold transition-all duration-300 text-xs bg-transparent text-gray-300 border border-white/10 hover:border-[#5F7057] hover:bg-[#5F7057]/10 uppercase tracking-widest rounded-xl select-none flex items-center gap-2"
+            className="px-6 py-4 font-bold transition-all duration-300 text-xs bg-transparent text-gray-300 border border-white/10 hover:border-[#5F7057] hover:bg-[#5F7057]/10 uppercase tracking-widest rounded-xl select-none flex items-center gap-2"
           >
-            <i className="fa-solid fa-book-open text-sm text-[#D6C5B3]"></i> Field Manual & Specs
+            <i className="fa-solid fa-book-open text-xs text-[#D6C5B3]"></i> Protocol Specs
           </Link>
+        </div>
+
+        {/* 3 Pillars Bento Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl w-full text-left mt-4">
+          <div className="solid-panel p-5 rounded-2xl flex flex-col gap-2">
+            <div className="flex items-center gap-2.5 text-[#D97706] font-mono text-xs font-bold uppercase tracking-wider">
+              <i className="fa-solid fa-eye-slash"></i>
+              <span>Zero Metadata</span>
+            </div>
+            <p className="text-[11px] text-[#8E9A87] leading-relaxed font-sans">
+              Relays inspect zero message bodies, contact structures, or session keys. Blind envelope dispatch only.
+            </p>
+          </div>
+
+          <div className="solid-panel p-5 rounded-2xl flex flex-col gap-2">
+            <div className="flex items-center gap-2.5 text-[#5F7057] font-mono text-xs font-bold uppercase tracking-wider">
+              <i className="fa-solid fa-memory"></i>
+              <span>Volatile RAM Buffer</span>
+            </div>
+            <p className="text-[11px] text-[#8E9A87] leading-relaxed font-sans">
+              In-transit envelopes exist purely in volatile server memory. Zero disk persistence for messages.
+            </p>
+          </div>
+
+          <div className="solid-panel p-5 rounded-2xl flex flex-col gap-2">
+            <div className="flex items-center gap-2.5 text-[#D6C5B3] font-mono text-xs font-bold uppercase tracking-wider">
+              <i className="fa-solid fa-shield-halved"></i>
+              <span>Local Key Sovereignty</span>
+            </div>
+            <p className="text-[11px] text-[#8E9A87] leading-relaxed font-sans">
+              RSA-4096 identity keys are generated and held exclusively on client end devices.
+            </p>
+          </div>
+        </div>
+
+        {/* Desktop Client Interactive UI Showcase Mockup */}
+        <div className="max-w-4xl w-full mt-6 text-left">
+          <div className="solid-panel rounded-2xl overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.85)] border border-[#293226]">
+            {/* Window Titlebar */}
+            <div className="bg-[#0C0E0B] px-4 py-3 border-b border-[#293226] flex items-center justify-between select-none">
+              <div className="flex items-center gap-2">
+                <span className="w-3 h-3 rounded-full bg-red-500/80 inline-block"></span>
+                <span className="w-3 h-3 rounded-full bg-yellow-500/80 inline-block"></span>
+                <span className="w-3 h-3 rounded-full bg-green-500/80 inline-block"></span>
+                <span className="font-mono text-xs text-[#8E9A87] ml-2 font-bold">Vexta Messenger // v{latestClientVersion || '0.0.10'}</span>
+              </div>
+              <div className="flex items-center gap-3 font-mono text-[10px] text-[#D97706] font-bold uppercase tracking-widest">
+                <span className="flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#4ADE80] animate-pulse"></span> E2E ENCRYPTED
+                </span>
+              </div>
+            </div>
+
+            {/* App UI Grid Preview */}
+            <div className="grid grid-cols-1 md:grid-cols-3 bg-[#111410] min-h-[300px]">
+              {/* Sidebar */}
+              <div className="border-r border-[#293226] p-4 flex flex-col gap-3 bg-[#0E110D]">
+                <div className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#8E9A87] mb-1">
+                  Active Cryptographic Roster
+                </div>
+                <div className="flex items-center gap-3 p-2 rounded-xl bg-[#141813] border border-[#D97706]/30">
+                  <div className="w-8 h-8 rounded-lg bg-[#D97706]/20 border border-[#D97706]/40 flex items-center justify-center text-[#D97706] font-mono text-xs font-bold">
+                    BOB
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-xs font-bold text-white font-mono">bob_sec</span>
+                    <span className="text-[10px] text-[#4ADE80] flex items-center gap-1">
+                      <span className="w-1 h-1 rounded-full bg-[#4ADE80]"></span> Verified Key
+                    </span>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3 p-2 rounded-xl bg-transparent opacity-60">
+                  <div className="w-8 h-8 rounded-lg bg-[#5F7057]/20 border border-[#5F7057]/40 flex items-center justify-center text-[#D6C5B3] font-mono text-xs font-bold">
+                    ALICE
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-xs font-bold text-gray-300 font-mono">alice_node</span>
+                    <span className="text-[10px] text-[#8E9A87]">Standby</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Chat View */}
+              <div className="col-span-2 p-5 flex flex-col justify-between gap-4">
+                <div className="flex flex-col gap-3">
+                  {/* Encrypted Envelope Indicator */}
+                  <div className="self-center font-mono text-[9px] uppercase tracking-widest text-[#D97706] bg-[#D97706]/10 border border-[#D97706]/30 px-3 py-1 rounded-full">
+                    <i className="fa-solid fa-lock text-[8px] mr-1"></i> AES-256-GCM Session Established
+                  </div>
+
+                  {/* Bob Message */}
+                  <div className="self-start max-w-sm p-3 rounded-2xl rounded-tl-sm bg-[#181D17] border border-[#293226] text-xs text-gray-200">
+                    <div className="font-mono text-[9px] text-[#D6C5B3] mb-1 font-bold">bob_sec</div>
+                    Key exchange complete. Transmitting sealed dispatch payload over blind socket.
+                  </div>
+
+                  {/* Alice Message */}
+                  <div className="self-end max-w-sm p-3 rounded-2xl rounded-tr-sm bg-gradient-to-r from-[#5F7057]/30 to-[#D97706]/30 border border-[#D97706]/40 text-xs text-white">
+                    <div className="font-mono text-[9px] text-[#D97706] mb-1 font-bold">you (alice_node)</div>
+                    Envelope received and verified locally. Zero relay metadata recorded.
+                  </div>
+                </div>
+
+                {/* Simulated Input Bar */}
+                <div className="border border-[#293226] rounded-xl bg-[#0C0E0B] p-2 flex items-center justify-between">
+                  <span className="font-mono text-xs text-[#8E9A87] px-2">Type message (auto-sealed on device)...</span>
+                  <button className="px-3 py-1 bg-[#D97706] text-white rounded-lg font-mono text-[10px] font-bold uppercase">
+                    Send
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
       </section>
@@ -221,7 +350,7 @@ export default function HomePage() {
         </div>
 
         {/* Expanded Simulator Main Card */}
-        <div className="glass-panel p-6 md:p-8 rounded-3xl border border-white/10 shadow-[0_12px_40px_rgba(0,0,0,0.6)] flex flex-col gap-6 relative overflow-hidden">
+        <div className="solid-panel p-6 md:p-8 rounded-3xl border border-white/10 shadow-[0_12px_40px_rgba(0,0,0,0.6)] flex flex-col gap-6 relative overflow-hidden">
           {/* Top Control Bar */}
           <div className="flex flex-wrap items-center justify-between gap-4 border-b border-white/10 pb-4">
             {/* Phase Selector Tabs */}
@@ -258,368 +387,166 @@ export default function HomePage() {
               </button>
               <button
                 onClick={togglePlay}
-                className={`px-4 py-2 border rounded-xl font-mono text-xs font-bold uppercase transition-all duration-200 cursor-pointer flex items-center gap-1.5 ${
-                  isPlaying
-                    ? 'border-red-500/30 text-red-400 bg-red-500/10 hover:bg-red-500/20'
-                    : 'border-green-500/30 text-green-400 bg-green-500/10 hover:bg-green-500/20'
-                }`}
+                className="px-4 py-2 border border-white/10 text-gray-300 hover:text-white bg-white/5 hover:bg-white/10 rounded-xl font-mono text-xs font-bold uppercase transition-all duration-200 cursor-pointer flex items-center gap-1.5"
               >
-                <i className={`fa-solid ${isPlaying ? 'fa-pause' : 'fa-circle-play'}`}></i>
-                <span>{isPlaying ? 'Pause Auto-Loop' : 'Auto-Play Loop'}</span>
-              </button>
-              <button
-                onClick={resetSimulation}
-                className="px-3.5 py-2 border border-white/10 text-gray-400 bg-transparent hover:bg-white/5 rounded-xl font-mono text-xs font-bold uppercase transition-all duration-200 cursor-pointer"
-              >
-                Reset
+                <i className={`fa-solid ${isPlaying ? 'fa-pause' : 'fa-play'} text-xs`}></i>
+                {isPlaying ? 'Pause Auto-Loop' : 'Resume Auto-Loop'}
               </button>
             </div>
           </div>
 
-          {/* Expanded 3-Node Topology Stage */}
-          <div className="relative flex flex-col md:flex-row items-stretch justify-between gap-6 bg-[#0C0E0B]/80 rounded-2xl p-6 md:p-8 overflow-hidden border border-white/10 min-h-[380px]">
-            <div className="absolute inset-0 grid-bg opacity-15 pointer-events-none"></div>
-
-            {/* Node 1: Client A (Alice - Sender) */}
-            <div
-              className={`w-full md:w-[30%] flex flex-col items-center border p-5 rounded-2xl relative z-10 transition-all duration-500 select-none ${
-                phase === 1 || phase === 2 ? 'border-[#D97706] bg-[#D97706]/10 shadow-[0_0_20px_rgba(217,119,6,0.2)]' : 'border-white/10 bg-[#151813]/60'
-              }`}
-            >
-              <div
-                className={`w-14 h-14 rounded-2xl border border-[#5F7057]/40 flex items-center justify-center text-xl mb-2 transition-all ${
-                  phase === 1 || phase === 2 ? 'bg-[#D97706]/25 text-[#D97706] scale-105' : 'bg-[#5F7057]/10 text-[#D6C5B3]'
-                }`}
-              >
-                <i className="fa-solid fa-desktop"></i>
-              </div>
-              <span className="text-xs font-extrabold uppercase tracking-wider text-[#D6C5B3] font-mono">Client A (Alice)</span>
-              <span className="text-[9px] text-[#7C8775] font-mono uppercase mb-2">Sender Terminal</span>
-
-              {/* Alice Outbox Box */}
-              <div className="w-full bg-black/60 border border-white/10 rounded-xl p-3 text-[9px] font-mono leading-relaxed flex flex-col gap-2 flex-1 justify-between">
-                <div className="flex items-center justify-between text-[#7C8775] border-b border-white/10 pb-1">
-                  <span>OUTBOX QUEUE</span>
-                  <span
-                    className={`text-[#D97706] uppercase tracking-wider text-[8px] font-bold ${
-                      phase >= 1 ? 'animate-pulse' : ''
-                    }`}
-                  >
-                    {phase === 0 ? 'IDLE' : phase === 1 ? 'ENCRYPTING' : 'TRANSMITTED'}
-                  </span>
-                </div>
-                <div className="flex flex-col gap-0.5">
-                  <span className="text-[#7C8775]">Plaintext:</span>
-                  <span className="text-white font-bold bg-white/5 p-1 rounded">"Hello Bob! Key exchange complete."</span>
-                </div>
-                <div className="flex flex-col gap-0.5 border-t border-white/10 pt-1">
-                  <span className="text-[#7C8775]">Sealed Envelope:</span>
-                  <span className="text-[#D6C5B3] break-all font-bold">
-                    {phase >= 1 ? '0x8f4b...aes_gcm_sealed_rsa_4096' : '[Waiting for payload]'}
-                  </span>
-                </div>
-                <div
-                  className={`flex items-center justify-between border-t border-white/10 pt-1.5 text-[8px] ${
-                    phase >= 1 ? 'text-[#D97706] font-bold' : 'text-[#7C8775]'
-                  }`}
-                >
-                  <span className="flex items-center gap-1">
-                    <i className={`fa-solid ${phase >= 1 ? 'fa-lock' : 'fa-lock-open'}`}></i>
-                    <span>{phase >= 1 ? 'AES-GCM SECURE' : 'KEYS READY'}</span>
-                  </span>
-                  <span>RSA-OAEP-4096</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Cable Left (Alice -> Server) */}
-            <div className="hidden md:flex flex-1 items-center justify-center relative mx-2 z-10">
-              <svg className="w-full h-12 overflow-visible" fill="none">
-                <line
-                  x1="0"
-                  y1="50%"
-                  x2="100%"
-                  y2="50%"
-                  stroke="currentColor"
-                  strokeWidth="3"
-                  className={`transition-colors duration-500 ${
-                    phase === 2 ? 'text-[#D97706] cable-active' : 'text-[#272D24]/40'
-                  }`}
-                />
-              </svg>
-              {phase === 2 && (
-                <div className="absolute top-1/2 -translate-y-1/2 w-9 h-9 rounded-xl bg-[#D97706]/30 border-2 border-[#D97706] flex items-center justify-center text-[#D97706] shadow-[0_0_15px_rgba(217,119,6,0.6)] animate-packet-h-fw z-20">
-                  <i className="fa-solid fa-lock text-xs"></i>
-                </div>
-              )}
-            </div>
-
-            {/* Mobile Cable Left */}
-            <div className="flex md:hidden w-full h-10 items-center justify-center relative my-1 z-10">
-              <svg className="w-full h-full overflow-visible" fill="none">
-                <line
-                  x1="50%"
-                  y1="0"
-                  x2="50%"
-                  y2="100%"
-                  stroke="currentColor"
-                  strokeWidth="3"
-                  className={`transition-colors duration-500 ${
-                    phase === 2 ? 'text-[#D97706] cable-active' : 'text-[#272D24]/40'
-                  }`}
-                />
-              </svg>
-              {phase === 2 && (
-                <div className="absolute left-1/2 -translate-x-1/2 w-8 h-8 rounded-xl bg-[#D97706]/30 border-2 border-[#D97706] flex items-center justify-center text-[#D97706] shadow-[0_0_15px_rgba(217,119,6,0.6)] animate-packet-v-fw z-20">
-                  <i className="fa-solid fa-lock text-xs"></i>
-                </div>
-              )}
-            </div>
-
-            {/* Node 2: Vexta Relay Server (Center Node) */}
-            <div
-              className={`w-full md:w-[34%] flex flex-col items-center border p-5 rounded-2xl relative z-10 transition-all duration-500 select-none ${
-                phase === 3 ? 'border-[#D97706] bg-[#D97706]/10 shadow-[0_0_25px_rgba(217,119,6,0.25)] scale-[1.02]' : 'border-white/10 bg-[#151813]/60'
-              }`}
-            >
-              <div
-                className={`w-14 h-14 rounded-2xl border border-[#5F7057]/40 flex items-center justify-center text-xl mb-2 transition-all ${
-                  phase === 3 ? 'bg-[#D97706]/30 text-[#D97706] scale-105' : 'bg-[#5F7057]/10 text-[#D6C5B3]'
-                }`}
-              >
-                <i className="fa-solid fa-server"></i>
-              </div>
-              <span className="text-xs font-extrabold uppercase tracking-wider text-[#D97706] font-mono">Vexta Relay Server</span>
-              <span className="text-[9px] text-[#7C8775] font-mono uppercase mb-2">Metadata-Blind Node</span>
-
-              {/* Server RAM Buffer Box */}
-              <div className="w-full bg-black/60 border border-white/10 rounded-xl p-3 text-[9px] font-mono leading-relaxed flex flex-col gap-2 flex-1 justify-between">
-                <div className="flex items-center justify-between text-[#7C8775] border-b border-white/10 pb-1">
-                  <span>RAM VOLATILE BUFFER</span>
-                  <span className="text-[#D97706] text-[8px] font-bold">
-                    {phase >= 3 && phase < 5 ? '1 ENVELOPE IN QUEUE' : 'BUFFER EMPTY'}
-                  </span>
-                </div>
-
-                <div
-                  className={`flex flex-col gap-1 items-center justify-center p-3 border border-dashed rounded-xl transition-all ${
-                    phase >= 3 && phase < 5 ? 'border-[#D97706] bg-[#D97706]/10 text-[#D97706]' : 'border-white/10 text-[#7C8775]/40'
-                  }`}
-                >
-                  {phase >= 3 && phase < 5 ? (
-                    <div className="flex flex-col items-center gap-1 animate-pulse text-center">
-                      <i className="fa-solid fa-shield-halved text-xl"></i>
-                      <span className="text-[7px] uppercase tracking-wider font-extrabold">Envelope Locked in RAM</span>
-                    </div>
-                  ) : (
-                    <div className="flex flex-col items-center gap-1 text-center">
-                      <i className="fa-solid fa-box-open text-xl"></i>
-                      <span className="text-[7px] uppercase tracking-wider font-bold">Standby State</span>
-                    </div>
-                  )}
-                </div>
-
-                <div className="flex flex-col gap-1 border-t border-white/10 pt-1.5 text-[8px]">
-                  <div className="flex justify-between items-center text-[#7C8775]">
-                    <span>Relay Policy:</span>
-                    <span className="text-green-400 font-extrabold uppercase">BLIND FORWARDING</span>
+          {/* Graphical Topology Pipeline */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch relative">
+            {/* 1. Alice (Sender Node) */}
+            <div className={`p-6 rounded-2xl flex flex-col gap-4 border transition-all duration-500 ${
+              phase === 1 || phase === 2
+                ? 'bg-[#181D17] border-[#D97706] shadow-[0_0_25px_rgba(217,119,6,0.25)]'
+                : 'bg-[#0E110D] border-white/5'
+            }`}>
+              <div className="flex items-center justify-between border-b border-white/10 pb-3">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-lg bg-[#D97706]/20 border border-[#D97706]/40 flex items-center justify-center text-[#D97706] font-mono text-xs font-bold">
+                    A
                   </div>
-                  <div className="flex justify-between items-center text-[#7C8775]">
-                    <span>Payload Access:</span>
-                    <span className="text-red-400 font-extrabold uppercase">
-                      {phase >= 3 && phase < 5 ? 'UNREADABLE (NO PRIVATE KEY)' : 'NULL'}
-                    </span>
+                  <div>
+                    <h4 className="text-xs font-bold font-mono text-white uppercase">Alice Node</h4>
+                    <span className="text-[10px] text-[#8E9A87] font-mono">Origin Client</span>
                   </div>
                 </div>
+                <span className="text-[9px] font-mono bg-white/5 px-2 py-0.5 rounded text-[#D6C5B3]">PORT :51820</span>
+              </div>
+
+              <div className="flex flex-col gap-2 font-mono text-[11px] text-[#8E9A87]">
+                <div className="flex justify-between">
+                  <span>Payload:</span>
+                  <span className="text-white font-bold">{phase >= 1 ? '"Hello Bob!"' : 'Idle'}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Cipher Key:</span>
+                  <span className={phase >= 1 ? 'text-[#4ADE80] font-bold' : ''}>{phase >= 1 ? 'AES-256-GCM' : '--'}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Envelope:</span>
+                  <span className={phase >= 2 ? 'text-[#D97706] font-bold' : ''}>{phase >= 2 ? 'SEALED & SENT' : 'Standby'}</span>
+                </div>
               </div>
             </div>
 
-            {/* Cable Right (Server -> Bob) */}
-            <div className="hidden md:flex flex-1 items-center justify-center relative mx-2 z-10">
-              <svg className="w-full h-12 overflow-visible" fill="none">
-                <line
-                  x1="0"
-                  y1="50%"
-                  x2="100%"
-                  y2="50%"
-                  stroke="currentColor"
-                  strokeWidth="3"
-                  className={`transition-colors duration-500 ${
-                    phase === 4 || phase === 5 ? 'text-[#D97706] cable-active' : 'text-[#272D24]/40'
-                  }`}
-                />
-              </svg>
-              {phase === 4 && (
-                <div className="absolute top-1/2 -translate-y-1/2 w-9 h-9 rounded-xl bg-[#D6C5B3]/30 border-2 border-[#D6C5B3] flex items-center justify-center text-[#D6C5B3] shadow-[0_0_15px_rgba(214,197,179,0.6)] animate-packet-h-bw z-20">
-                  <i className="fa-solid fa-key text-xs"></i>
+            {/* 2. Vexta Relay Bridge (Zero-Knowledge Broker) */}
+            <div className={`p-6 rounded-2xl flex flex-col gap-4 border transition-all duration-500 ${
+              phase === 3
+                ? 'bg-[#181D17] border-[#5F7057] shadow-[0_0_25px_rgba(95,112,87,0.35)]'
+                : 'bg-[#0E110D] border-white/5'
+            }`}>
+              <div className="flex items-center justify-between border-b border-white/10 pb-3">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-lg bg-[#5F7057]/20 border border-[#5F7057]/40 flex items-center justify-center text-[#D6C5B3] font-mono text-xs font-bold">
+                    R
+                  </div>
+                  <div>
+                    <h4 className="text-xs font-bold font-mono text-white uppercase">Vexta Relay Node</h4>
+                    <span className="text-[10px] text-[#8E9A87] font-mono">Blind Socket Broker</span>
+                  </div>
                 </div>
-              )}
-              {phase === 5 && (
-                <div className="absolute top-1/2 -translate-y-1/2 w-9 h-9 rounded-xl bg-[#D97706]/30 border-2 border-[#D97706] flex items-center justify-center text-[#D97706] shadow-[0_0_15px_rgba(217,119,6,0.6)] animate-packet-h-fw z-20">
-                  <i className="fa-solid fa-lock text-xs"></i>
-                </div>
-              )}
-            </div>
-
-            {/* Mobile Cable Right */}
-            <div className="flex md:hidden w-full h-10 items-center justify-center relative my-1 z-10">
-              <svg className="w-full h-full overflow-visible" fill="none">
-                <line
-                  x1="50%"
-                  y1="0"
-                  x2="50%"
-                  y2="100%"
-                  stroke="currentColor"
-                  strokeWidth="3"
-                  className={`transition-colors duration-500 ${
-                    phase === 4 || phase === 5 ? 'text-[#D97706] cable-active' : 'text-[#272D24]/40'
-                  }`}
-                />
-              </svg>
-              {phase === 4 && (
-                <div className="absolute left-1/2 -translate-x-1/2 w-8 h-8 rounded-xl bg-[#D6C5B3]/30 border-2 border-[#D6C5B3] flex items-center justify-center text-[#D6C5B3] shadow-[0_0_15px_rgba(214,197,179,0.6)] animate-packet-v-bw z-20">
-                  <i className="fa-solid fa-key text-xs"></i>
-                </div>
-              )}
-              {phase === 5 && (
-                <div className="absolute left-1/2 -translate-x-1/2 w-8 h-8 rounded-xl bg-[#D97706]/30 border-2 border-[#D97706] flex items-center justify-center text-[#D97706] shadow-[0_0_15px_rgba(217,119,6,0.6)] animate-packet-v-fw z-20">
-                  <i className="fa-solid fa-lock text-xs"></i>
-                </div>
-              )}
-            </div>
-
-            {/* Node 3: Client B (Bob - Receiver) */}
-            <div
-              className={`w-full md:w-[30%] flex flex-col items-center border p-5 rounded-2xl relative z-10 transition-all duration-500 select-none ${
-                phase === 5
-                  ? 'border-green-500 bg-green-950/20 shadow-[0_0_25px_rgba(34,197,94,0.25)]'
-                  : phase === 4
-                  ? 'border-[#D97706] bg-[#D97706]/10'
-                  : 'border-white/10 bg-[#151813]/60'
-              }`}
-            >
-              <div
-                className={`w-14 h-14 rounded-2xl border border-[#5F7057]/40 flex items-center justify-center text-xl mb-2 transition-all ${
-                  phase === 5 ? 'bg-green-500/30 text-green-400 scale-105' : phase === 4 ? 'bg-[#D97706]/25 text-[#D97706]' : 'bg-[#5F7057]/10 text-[#D6C5B3]'
-                }`}
-              >
-                <i className="fa-solid fa-mobile-screen-button"></i>
+                <span className="text-[9px] font-mono bg-[#4ADE80]/10 border border-[#4ADE80]/30 text-[#4ADE80] px-2 py-0.5 rounded font-bold">ACTIVE</span>
               </div>
-              <span className="text-xs font-extrabold uppercase tracking-wider text-[#D6C5B3] font-mono">Client B (Bob)</span>
-              <span className="text-[9px] text-[#7C8775] font-mono uppercase mb-2">Receiver Terminal</span>
 
-              {/* Bob Inbox Box */}
-              <div className="w-full bg-black/60 border border-white/10 rounded-xl p-3 text-[9px] font-mono leading-relaxed flex flex-col gap-2 flex-1 justify-between">
-                <div className="flex items-center justify-between text-[#7C8775] border-b border-white/10 pb-1">
-                  <span>INBOX STATE</span>
-                  <span
-                    className={`uppercase tracking-wider text-[8px] font-bold ${
-                      phase === 5 ? 'text-green-400 animate-pulse' : phase === 4 ? 'text-[#D97706]' : 'text-[#7C8775]'
-                    }`}
-                  >
-                    {phase === 5 ? 'DECRYPTED OK' : phase === 4 ? 'AUTHENTICATING' : 'IDLE'}
-                  </span>
+              <div className="flex flex-col gap-2 font-mono text-[11px] text-[#8E9A87]">
+                <div className="flex justify-between">
+                  <span>Disk Storage:</span>
+                  <span className="text-[#4ADE80] font-bold">0 BYTES (RAM ONLY)</span>
                 </div>
-                <div className="flex flex-col gap-0.5">
-                  <span className="text-[#7C8775]">Plaintext Result:</span>
-                  <span
-                    className={`font-bold transition-all duration-300 p-1 rounded ${
-                      phase === 5 ? 'text-green-400 bg-green-500/10 border border-green-500/30' : 'text-gray-600 bg-white/5'
-                    }`}
-                  >
-                    {phase === 5 ? '"Hello Bob! Key exchange complete."' : '...'}
-                  </span>
+                <div className="flex justify-between">
+                  <span>Header Inspection:</span>
+                  <span className="text-[#EF4444] font-bold">DISABLED (BLIND)</span>
                 </div>
-                <div className="flex flex-col gap-0.5 border-t border-white/10 pt-1">
-                  <span className="text-[#7C8775]">Decryption Status:</span>
-                  <span className={`break-all font-bold transition-all duration-300 ${phase === 5 ? 'text-green-400' : 'text-gray-600'}`}>
-                    {phase === 5 ? 'RSA Key Validated & Session Decrypted' : 'Waiting for envelope'}
-                  </span>
+                <div className="flex justify-between">
+                  <span>Target Hash:</span>
+                  <span className="text-[#D6C5B3]">{phase >= 3 ? 'SHA-256(BobPubKey)' : '--'}</span>
                 </div>
-                <div
-                  className={`flex items-center justify-between border-t border-white/10 pt-1.5 text-[8px] ${
-                    phase === 5 ? 'text-green-400 font-bold' : 'text-[#7C8775]'
-                  }`}
-                >
-                  <span className="flex items-center gap-1">
-                    <i className={`fa-solid ${phase === 5 ? 'fa-envelope-open-text' : 'fa-lock'}`}></i>
-                    <span>{phase === 5 ? 'DECRYPTED' : 'KEYS ARMED'}</span>
-                  </span>
-                  <span>RSA-4096 PRIVATE</span>
+              </div>
+            </div>
+
+            {/* 3. Bob (Receiver Node) */}
+            <div className={`p-6 rounded-2xl flex flex-col gap-4 border transition-all duration-500 ${
+              phase === 4 || phase === 5
+                ? 'bg-[#181D17] border-[#D97706] shadow-[0_0_25px_rgba(217,119,6,0.25)]'
+                : 'bg-[#0E110D] border-white/5'
+            }`}>
+              <div className="flex items-center justify-between border-b border-white/10 pb-3">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-lg bg-[#D97706]/20 border border-[#D97706]/40 flex items-center justify-center text-[#D97706] font-mono text-xs font-bold">
+                    B
+                  </div>
+                  <div>
+                    <h4 className="text-xs font-bold font-mono text-white uppercase">Bob Node</h4>
+                    <span className="text-[10px] text-[#8E9A87] font-mono">Recipient Client</span>
+                  </div>
+                </div>
+                <span className="text-[9px] font-mono bg-white/5 px-2 py-0.5 rounded text-[#D6C5B3]">PORT :51821</span>
+              </div>
+
+              <div className="flex flex-col gap-2 font-mono text-[11px] text-[#8E9A87]">
+                <div className="flex justify-between">
+                  <span>Session Key:</span>
+                  <span className={phase === 5 ? 'text-[#4ADE80] font-bold' : ''}>{phase === 5 ? 'DECRYPTED (RSA)' : 'Encrypted'}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Message Body:</span>
+                  <span className={phase === 5 ? 'text-white font-bold' : 'text-[#8E9A87]'}>{phase === 5 ? '"Hello Bob!"' : 'Waiting...'}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Integrity Check:</span>
+                  <span className={phase === 5 ? 'text-[#4ADE80] font-bold' : ''}>{phase === 5 ? 'PASSED (GCM)' : '--'}</span>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Expanded Real-Time Terminal Audit Log Console */}
-          <div className="bg-[#0C0E0B] border border-white/10 p-5 rounded-2xl flex flex-col gap-3 font-mono">
-            <div className="flex flex-wrap items-center justify-between gap-3 text-xs text-[#7C8775] border-b border-white/10 pb-3">
-              <span className="flex items-center gap-2 text-[#D97706] font-bold">
-                <i className="fa-solid fa-terminal"></i> REAL-TIME CRYPTOGRAPHIC AUDIT CONSOLE
-              </span>
-
-              {/* Log Filters */}
-              <div className="flex items-center gap-2">
-                <span className="text-[9px] uppercase tracking-widest text-[#7C8775]">Filter Log:</span>
-                {['all', 'info', 'success', 'warning', 'danger'].map((f) => (
-                  <button
-                    key={f}
-                    onClick={() => setLogFilter(f)}
-                    className={`px-2 py-0.5 rounded text-[9px] uppercase font-bold transition-colors cursor-pointer ${
-                      logFilter === f ? 'bg-[#D97706] text-white' : 'bg-white/5 text-gray-400 hover:text-white'
-                    }`}
-                  >
-                    {f}
-                  </button>
-                ))}
-              </div>
+          {/* Console Log Stream */}
+          <div className="flex flex-col gap-2 bg-[#0C0E0B] border border-white/10 rounded-2xl p-4 font-mono text-xs">
+            <div className="flex items-center justify-between border-b border-white/10 pb-2 text-[10px] text-[#8E9A87] font-bold uppercase tracking-wider">
+              <span>// Live Execution Stream</span>
+              <span>Buffer: {logs.length} events</span>
             </div>
-
-            <div className="flex flex-col gap-1.5 font-mono text-[10px] md:text-xs h-[160px] overflow-y-auto pr-2 scroll-smooth">
-              {filteredLogs.map((log) => (
-                <div key={log.id} className="flex items-start gap-3 leading-relaxed border-b border-white/5 pb-1">
-                  <span className="text-[#7C8775] shrink-0 font-bold">{log.timestamp}</span>
-                  <span
-                    className={`${
-                      log.type === 'success'
-                        ? 'text-green-400 font-bold'
-                        : log.type === 'danger'
-                        ? 'text-red-400 font-bold'
-                        : log.type === 'warning'
-                        ? 'text-[#D97706] font-bold'
-                        : 'text-gray-300'
-                    }`}
-                  >
-                    {log.text}
-                  </span>
-                </div>
-              ))}
+            <div className="flex flex-col gap-1 max-h-48 overflow-y-auto pt-2">
+              {logs.map((log) => {
+                const color = log.type === 'success' ? 'text-[#4ADE80]' : log.type === 'danger' ? 'text-[#EF4444]' : log.type === 'warning' ? 'text-[#F59E0B]' : 'text-[#D6C5B3]';
+                return (
+                  <div key={log.id} className="flex gap-2">
+                    <span className="text-[#8E9A87] text-[10px]">{log.timestamp}</span>
+                    <span className={color}>{log.text}</span>
+                  </div>
+                );
+              })}
             </div>
           </div>
         </div>
       </section>
 
       {/* ========================================================================= */}
-      {/* 3. ZERO-TRUST PROTOCOL ENGINEERING PILLARS */}
+      {/* 3. CRYPTOGRAPHIC PILLARS */}
       {/* ========================================================================= */}
       <section className="flex flex-col gap-8">
         <div className="text-center max-w-xl mx-auto flex flex-col gap-2">
           <span className="text-[#D6C5B3] text-xs font-bold uppercase tracking-widest font-mono">// Cryptographic Pillars</span>
-          <h2 className="text-2xl md:text-3xl font-extrabold uppercase tracking-tight text-white font-sans">Zero-Trust Protocol Engineering</h2>
+          <h2 className="text-2xl md:text-3xl font-extrabold uppercase tracking-tight text-white font-sans">
+            Engineered For Absolute Privacy
+          </h2>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <div className="glass-panel glass-panel-hover p-6 rounded-2xl flex flex-col gap-4 border border-white/5">
+          <div className="solid-panel p-6 rounded-2xl flex flex-col gap-4">
             <div className="w-12 h-12 rounded-xl bg-[#5F7057]/20 border border-[#5F7057]/40 flex items-center justify-center text-2xl text-[#D6C5B3]">
               <i className="fa-solid fa-eye-slash"></i>
             </div>
             <h3 className="font-bold text-white uppercase text-sm tracking-wider">Blind Message Relay</h3>
             <p className="text-xs text-gray-400 leading-relaxed font-sans">
-              The server only handles E2E encrypted envelopes. Plaintexts, contact groups, chat files, and participant structures are invisible to the database and relays.
+              The server only handles E2E encrypted envelopes. Plaintexts, contact groups, chat files, and participant structures are invisible to relays.
             </p>
           </div>
 
-          <div className="glass-panel glass-panel-hover p-6 rounded-2xl flex flex-col gap-4 border border-white/5">
+          <div className="solid-panel p-6 rounded-2xl flex flex-col gap-4">
             <div className="w-12 h-12 rounded-xl bg-[#D97706]/20 border border-[#D97706]/40 flex items-center justify-center text-2xl text-[#D97706]">
               <i className="fa-solid fa-key"></i>
             </div>
@@ -629,7 +556,7 @@ export default function HomePage() {
             </p>
           </div>
 
-          <div className="glass-panel glass-panel-hover p-6 rounded-2xl flex flex-col gap-4 border border-white/5">
+          <div className="solid-panel p-6 rounded-2xl flex flex-col gap-4">
             <div className="w-12 h-12 rounded-xl bg-[#5F7057]/20 border border-[#5F7057]/40 flex items-center justify-center text-2xl text-[#D6C5B3]">
               <i className="fa-solid fa-box"></i>
             </div>
@@ -639,13 +566,13 @@ export default function HomePage() {
             </p>
           </div>
 
-          <div className="glass-panel glass-panel-hover p-6 rounded-2xl flex flex-col gap-4 border border-white/5">
+          <div className="solid-panel p-6 rounded-2xl flex flex-col gap-4">
             <div className="w-12 h-12 rounded-xl bg-[#D97706]/20 border border-[#D97706]/40 flex items-center justify-center text-2xl text-[#D97706]">
               <i className="fa-solid fa-vault"></i>
             </div>
             <h3 className="font-bold text-white uppercase text-sm tracking-wider">Encrypted Vault Sync</h3>
             <p className="text-xs text-gray-400 leading-relaxed font-sans">
-              Configuration data, contact tags, and profiles are encrypted using an Argon2id key derived from your master password before backing up to the server.
+              Configuration data, contact tags, and profiles are encrypted using an Argon2id key derived from your master password before backing up.
             </p>
           </div>
         </div>
@@ -654,7 +581,7 @@ export default function HomePage() {
       {/* ========================================================================= */}
       {/* 4. SYSTEM ANNOUNCEMENTS LINK BANNER */}
       {/* ========================================================================= */}
-      <section className="glass-panel rounded-3xl p-6 md:p-8 flex flex-col md:flex-row items-center justify-between gap-6 border border-white/10 hover:border-[#D97706]/30 transition-all duration-300">
+      <section className="solid-panel rounded-3xl p-6 md:p-8 flex flex-col md:flex-row items-center justify-between gap-6 hover:border-[#D97706]/40 transition-all duration-300">
         <div className="flex items-center gap-4">
           <div className="w-12 h-12 rounded-2xl bg-[#D97706]/15 border border-[#D97706]/30 flex items-center justify-center text-[#D97706] text-2xl shrink-0">
             <i className="fa-solid fa-bullhorn"></i>
@@ -676,8 +603,8 @@ export default function HomePage() {
       {/* ========================================================================= */}
       {/* 5. GETTING STARTED GUIDE */}
       {/* ========================================================================= */}
-      <section className="glass-panel rounded-3xl p-8 flex flex-col gap-8 border border-white/10">
-        <div className="flex flex-col gap-2">
+      <section className="solid-panel rounded-3xl p-8 flex flex-col gap-8 border border-white/10">
+        <div className="flex flex-col gap-2 text-left">
           <h2 className="text-sm font-bold uppercase tracking-wider text-white flex items-center gap-2">
             <span className="inline-block w-1.5 h-3 bg-[#5F7057]"></span> Getting Started Guide
           </h2>
@@ -686,7 +613,7 @@ export default function HomePage() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-left">
           <div className="flex flex-col gap-3 p-6 bg-[#0C0E0B]/60 border border-white/10 rounded-2xl relative group">
             <div className="absolute -top-4 -left-3 w-9 h-9 rounded-xl bg-[#5F7057] border border-white/20 text-white font-extrabold text-base flex items-center justify-center shadow-tech font-mono">
               1
