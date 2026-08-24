@@ -5,7 +5,6 @@ import { useApp } from '../context/AppContext';
 export default function HomePage() {
   const {
     latestClientVersion,
-    clientDownloads,
   } = useApp();
 
   // OS Detection State
@@ -62,7 +61,6 @@ export default function HomePage() {
   const [phase, setPhase] = useState(0);
   const [isPlaying, setIsPlaying] = useState(true);
   const [logs, setLogs] = useState([]);
-  const [logFilter, setLogFilter] = useState('all');
   const simTimeoutRef = useRef(null);
 
   const addLog = (text, type) => {
