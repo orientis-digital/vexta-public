@@ -64,7 +64,7 @@ export function AppProvider({ children }) {
     const name = (art.filename || '').toLowerCase();
     const key = (art.key || '').toLowerCase();
     const plat = (art.platform || '').toLowerCase();
-    if (plat === 'windows' || key.includes('win') || name.includes('win') || name.endsWith('.exe') || name.endsWith('.zip')) {
+    if (plat === 'windows' || key.includes('win') || name.includes('win') || name.endsWith('.exe') || name.endsWith('.zip') || name.endsWith('.msi')) {
       return 'windows';
     }
     if (plat === 'linux' || key.includes('linux') || name.includes('linux') || name.endsWith('.appimage') || name.endsWith('.deb') || name.endsWith('.tar.gz') || name.endsWith('.tgz')) {

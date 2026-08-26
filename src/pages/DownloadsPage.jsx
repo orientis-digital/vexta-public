@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
 import confetti from 'canvas-confetti';
 
@@ -13,6 +13,7 @@ export default function DownloadsPage() {
   } = useApp();
 
   const [detectedOS, setDetectedOS] = useState('windows');
+  const [selectedWinFormat, setSelectedWinFormat] = useState('setup'); // 'setup' | 'portable' | 'msi'
   const [copiedHash, setCopiedHash] = useState(null);
   const [verifyHashInput, setVerifyHashInput] = useState('');
   const [showArchive, setShowArchive] = useState(false);
@@ -27,13 +28,21 @@ export default function DownloadsPage() {
     else setDetectedOS('windows');
   }, []);
 
-  // Primary release builds
-  const latestExe = clientDownloads.find((d) => d.platform_key === 'windows' && !d.filename.endsWith('.zip'));
-  const latestZip = clientDownloads.find((d) => d.platform_key === 'windows' && d.filename.endsWith('.zip'));
-  const latestAppImage = clientDownloads.find((d) => d.platform_key === 'linux' && d.filename.endsWith('.AppImage'));
-  const latestDeb = clientDownloads.find((d) => d.platform_key === 'linux' && d.filename.endsWith('.deb'));
-  const latestTarGz = clientDownloads.find((d) => d.platform_key === 'linux' && d.filename.endsWith('.tar.gz'));
-  const latestApk = clientDownloads.find((d) => d.platform_key === 'android');
+  // Categorize specific release artifacts
+  const winSetup = clientDownloads.find(
+    (d) => d.key === 'windows_nsis' || d.filename?.endsWith('-setup.exe') || (d.platform_key === 'windows' && d.filename?.endsWith('.exe') && !d.filename?.toLowerCase().includes('portable'))
+  );
+  const winPortable = clientDownloads.find(
+    (d) => d.key === 'windows_portable' || d.filename?.toLowerCase().includes('portable') || d.filename?.endsWith('.zip')
+  );
+  const winMsi = clientDownloads.find(
+    (d) => d.key === 'windows_msi' || d.filename?.endsWith('.msi')
+  );
+
+  const latestAppImage = clientDownloads.find((d) => d.platform_key === 'linux' && d.filename?.endsWith('.AppImage'));
+  const latestDeb = clientDownloads.find((d) => d.platform_key === 'linux' && d.filename?.endsWith('.deb'));
+  const latestTarGz = clientDownloads.find((d) => d.platform_key === 'linux' && d.filename?.endsWith('.tar.gz'));
+  const latestApk = clientDownloads.find((d) => d.platform_key === 'android' || d.filename?.endsWith('.apk'));
 
   const triggerDownload = (dl) => {
     if (!dl) return;
@@ -59,7 +68,14 @@ export default function DownloadsPage() {
     setTimeout(() => setCopiedHash(null), 2000);
   };
 
-  // Determine Primary Recommended Download based on detected OS
+  // Determine active Windows target based on user selection
+  const getActiveWinTarget = () => {
+    if (selectedWinFormat === 'portable') return winPortable || winSetup || winMsi;
+    if (selectedWinFormat === 'msi') return winMsi || winSetup || winPortable;
+    return winSetup || winPortable || winMsi;
+  };
+
+  // Determine Primary Recommended Download based on detected OS & chosen format
   const getPrimaryDownload = () => {
     if (detectedOS === 'linux') {
       return {
@@ -76,18 +92,26 @@ export default function DownloadsPage() {
         target: latestApk,
         osName: 'Android',
         icon: 'fa-brands fa-android',
-        typeLabel: 'APK Installer',
+        typeLabel: 'ARM64 APK Installer',
         altTarget: null,
         altLabel: '',
       };
     }
+
+    const winTarget = getActiveWinTarget();
+    const typeLabel = selectedWinFormat === 'portable' 
+      ? 'Standalone Portable (.exe)' 
+      : selectedWinFormat === 'msi' 
+      ? 'Enterprise Package (.msi)' 
+      : 'Setup Wizard (.exe)';
+
     return {
-      target: latestExe || latestZip,
+      target: winTarget,
       osName: 'Windows',
       icon: 'fa-brands fa-windows',
-      typeLabel: 'Setup Installer (.exe)',
-      altTarget: latestZip,
-      altLabel: 'Download Portable .zip (No Install)',
+      typeLabel: typeLabel,
+      altTarget: null,
+      altLabel: '',
     };
   };
 
@@ -108,40 +132,66 @@ export default function DownloadsPage() {
           // OFFICIAL RELEASES
         </span>
         <h1 className="text-3xl md:text-5xl font-extrabold uppercase tracking-tight text-white">
-          Get Vexta Desktop
+          Get Vexta Client
         </h1>
         <p className="text-xs md:text-sm text-[#8E9A87] max-w-lg mx-auto font-sans leading-relaxed">
           Zero-knowledge, end-to-end encrypted messaging. All cryptography and private keys remain strictly on your local device.
         </p>
       </div>
 
-      {/* 2. PRIMARY SPOTLIGHT CARD (1-CLICK RECOMMENDED DOWNLOAD) */}
+      {/* 2. PRIMARY SPOTLIGHT CARD (WITH FORMAT CHOOSER) */}
       <div className="solid-panel p-6 md:p-8 rounded-3xl border border-[#D97706]/40 bg-gradient-to-b from-[#D97706]/10 to-transparent shadow-[0_15px_40px_rgba(0,0,0,0.7)] flex flex-col md:flex-row items-center justify-between gap-6 relative overflow-hidden">
-        <div className="flex items-center gap-5">
+        <div className="flex items-center gap-5 w-full md:w-auto">
           <div className="w-16 h-16 rounded-2xl bg-[#D97706]/20 border border-[#D97706]/40 flex items-center justify-center text-[#D97706] text-3xl shrink-0 shadow-lg">
             <i className={primary.icon}></i>
           </div>
-          <div className="flex flex-col text-left">
+          <div className="flex flex-col text-left flex-1">
             <div className="flex items-center gap-2 flex-wrap">
               <span className="text-lg md:text-xl font-extrabold text-white uppercase tracking-wider">
                 Vexta for {primary.osName}
               </span>
               <span className="bg-[#D97706] text-white text-[10px] font-mono font-bold px-2 py-0.5 rounded-md uppercase shadow-sm">
-                v{selectedVersion || latestClientVersion || '0.0.10'}
+                v{selectedVersion || latestClientVersion || '0.0.12'}
               </span>
             </div>
             <span className="text-xs text-[#8E9A87] font-mono mt-1">
               Recommended for your device • {primary.typeLabel} {primary.target?.size ? `(${primary.target.size})` : ''}
             </span>
 
-            {/* Subtle Alternate Format Link */}
-            {primary.altTarget && (
-              <button
-                onClick={() => triggerDownload(primary.altTarget)}
-                className="text-[11px] text-[#D6C5B3] hover:text-[#D97706] font-mono text-left mt-2 underline underline-offset-4 cursor-pointer transition-colors"
-              >
-                &rarr; {primary.altLabel}
-              </button>
+            {/* Windows Interactive Format Switcher Tabs */}
+            {detectedOS === 'windows' && (
+              <div className="flex items-center gap-1.5 mt-3 bg-[#0C0E0B]/80 p-1 rounded-xl border border-white/10 w-fit">
+                <button
+                  onClick={() => setSelectedWinFormat('setup')}
+                  className={`px-2.5 py-1 rounded-lg text-[11px] font-mono font-bold transition-all cursor-pointer ${
+                    selectedWinFormat === 'setup'
+                      ? 'bg-[#D97706] text-white shadow-sm'
+                      : 'text-gray-400 hover:text-white hover:bg-white/5'
+                  }`}
+                >
+                  <i className="fa-solid fa-box mr-1"></i> Setup (.exe)
+                </button>
+                <button
+                  onClick={() => setSelectedWinFormat('portable')}
+                  className={`px-2.5 py-1 rounded-lg text-[11px] font-mono font-bold transition-all cursor-pointer ${
+                    selectedWinFormat === 'portable'
+                      ? 'bg-[#D97706] text-white shadow-sm'
+                      : 'text-gray-400 hover:text-white hover:bg-white/5'
+                  }`}
+                >
+                  <i className="fa-solid fa-bolt mr-1"></i> Portable (.exe)
+                </button>
+                <button
+                  onClick={() => setSelectedWinFormat('msi')}
+                  className={`px-2.5 py-1 rounded-lg text-[11px] font-mono font-bold transition-all cursor-pointer ${
+                    selectedWinFormat === 'msi'
+                      ? 'bg-[#D97706] text-white shadow-sm'
+                      : 'text-gray-400 hover:text-white hover:bg-white/5'
+                  }`}
+                >
+                  <i className="fa-solid fa-building mr-1"></i> MSI (.msi)
+                </button>
+              </div>
             )}
           </div>
         </div>
@@ -153,7 +203,7 @@ export default function DownloadsPage() {
             className="w-full md:w-auto px-8 py-4 bg-gradient-to-r from-[#5F7057] to-[#D97706] text-white font-extrabold text-xs uppercase tracking-widest rounded-xl hover:shadow-[0_0_25px_rgba(217,119,6,0.4)] hover:-translate-y-0.5 transition-all duration-200 cursor-pointer flex items-center justify-center gap-2 shadow-lg select-none"
           >
             <i className="fa-solid fa-download text-sm"></i>
-            <span>Download Now</span>
+            <span>Download {primary.typeLabel.split(' ')[0]}</span>
           </button>
 
           {primary.target?.sha256 && (
@@ -172,13 +222,13 @@ export default function DownloadsPage() {
         </div>
       </div>
 
-      {/* 3. ALL PLATFORMS GRID (CLEAN & BALANCED) */}
+      {/* 3. ALL PLATFORMS GRID (CLEAR CHOICES FOR EVERY CLIENT) */}
       <div className="flex flex-col gap-4">
         <div className="flex items-center justify-between border-b border-[#293226] pb-3">
           <h2 className="text-xs font-mono font-bold uppercase tracking-wider text-[#D6C5B3] flex items-center gap-2">
-            <i className="fa-solid fa-layer-group text-[#D97706]"></i> Available Platforms
+            <i className="fa-solid fa-layer-group text-[#D97706]"></i> Available Platforms &amp; Formats
           </h2>
-          <span className="text-[10px] font-mono text-[#8E9A87]">Direct Packages</span>
+          <span className="text-[10px] font-mono text-[#8E9A87]">Direct Verified Packages</span>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -201,26 +251,85 @@ export default function DownloadsPage() {
             </div>
 
             <div className="flex flex-col gap-2 pt-2 border-t border-[#293226]">
-              {latestExe && (
+              {winSetup && (
                 <div className="flex items-center justify-between text-xs font-mono">
-                  <span className="text-gray-300">Installer (.exe)</span>
+                  <div className="flex flex-col">
+                    <span className="text-gray-300 font-bold">Setup (.exe)</span>
+                    <span className="text-[10px] text-[#8E9A87]">Standard Installer</span>
+                  </div>
                   <button
-                    onClick={() => triggerDownload(latestExe)}
+                    onClick={() => triggerDownload(winSetup)}
                     className="px-3 py-1 bg-[#D97706]/15 text-[#D97706] hover:bg-[#D97706] hover:text-white border border-[#D97706]/40 rounded-lg text-[10px] font-bold uppercase transition-all cursor-pointer"
                   >
                     Get .exe
                   </button>
                 </div>
               )}
-              {latestZip && (
+              {winPortable && (
                 <div className="flex items-center justify-between text-xs font-mono">
-                  <span className="text-gray-400">Portable (.zip)</span>
+                  <div className="flex flex-col">
+                    <span className="text-gray-300 font-bold">Portable (.exe)</span>
+                    <span className="text-[10px] text-[#8E9A87]">Zero-Install Standalone</span>
+                  </div>
                   <button
-                    onClick={() => triggerDownload(latestZip)}
+                    onClick={() => triggerDownload(winPortable)}
                     className="px-3 py-1 bg-white/5 text-gray-300 hover:text-white hover:bg-white/10 border border-white/10 rounded-lg text-[10px] font-bold uppercase transition-all cursor-pointer"
                   >
-                    Get .zip
+                    Get .exe
                   </button>
+                </div>
+              )}
+              {winMsi && (
+                <div className="flex items-center justify-between text-xs font-mono">
+                  <div className="flex flex-col">
+                    <span className="text-gray-300 font-bold">Enterprise (.msi)</span>
+                    <span className="text-[10px] text-[#8E9A87]">Windows Installer Package</span>
+                  </div>
+                  <button
+                    onClick={() => triggerDownload(winMsi)}
+                    className="px-3 py-1 bg-white/5 text-gray-300 hover:text-white hover:bg-white/10 border border-white/10 rounded-lg text-[10px] font-bold uppercase transition-all cursor-pointer"
+                  >
+                    Get .msi
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* ANDROID CARD */}
+          <div className="solid-panel p-5 rounded-2xl flex flex-col justify-between gap-4 border border-white/5 hover:border-[#10B981]/30 transition-all">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-[#10B981]/15 border border-[#10B981]/30 flex items-center justify-center text-[#10B981] text-xl">
+                  <i className="fa-brands fa-android"></i>
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-white uppercase">Android</h3>
+                  <span className="text-[10px] font-mono text-[#8E9A87]">ARM64 / APK Sideload</span>
+                </div>
+              </div>
+              <span className="text-[9px] font-mono text-[#10B981] font-bold bg-[#10B981]/10 border border-[#10B981]/30 px-2 py-0.5 rounded">
+                AVAILABLE
+              </span>
+            </div>
+
+            <div className="flex flex-col gap-2 pt-2 border-t border-[#293226]">
+              {latestApk ? (
+                <div className="flex items-center justify-between text-xs font-mono">
+                  <div className="flex flex-col">
+                    <span className="text-gray-300 font-bold">Direct Package (.apk)</span>
+                    <span className="text-[10px] text-[#8E9A87]">Android 8.0+ (ARM64)</span>
+                  </div>
+                  <button
+                    onClick={() => triggerDownload(latestApk)}
+                    className="px-3 py-1 bg-[#10B981]/15 text-[#10B981] hover:bg-[#10B981] hover:text-white border border-[#10B981]/40 rounded-lg text-[10px] font-bold uppercase transition-all cursor-pointer"
+                  >
+                    Get .apk
+                  </button>
+                </div>
+              ) : (
+                <div className="text-[11px] font-mono text-[#8E9A87] py-1">
+                  Build available in release directory
                 </div>
               )}
             </div>
@@ -266,40 +375,9 @@ export default function DownloadsPage() {
                   </button>
                 </div>
               )}
-            </div>
-          </div>
-
-          {/* ANDROID CARD */}
-          <div className="solid-panel p-5 rounded-2xl flex flex-col justify-between gap-4 border border-white/5">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-gray-400 text-xl">
-                  <i className="fa-brands fa-android"></i>
-                </div>
-                <div>
-                  <h3 className="text-sm font-bold text-white uppercase">Android</h3>
-                  <span className="text-[10px] font-mono text-[#8E9A87]">ARM64 / APK Sideload</span>
-                </div>
-              </div>
-              <span className="text-[9px] font-mono text-[#D97706] font-bold bg-[#D97706]/10 border border-[#D97706]/30 px-2 py-0.5 rounded">
-                AUDITING
-              </span>
-            </div>
-
-            <div className="flex flex-col gap-2 pt-2 border-t border-[#293226]">
-              {latestApk ? (
-                <div className="flex items-center justify-between text-xs font-mono">
-                  <span className="text-gray-300">Package (.apk)</span>
-                  <button
-                    onClick={() => triggerDownload(latestApk)}
-                    className="px-3 py-1 bg-white/5 text-gray-300 hover:text-white hover:bg-white/10 border border-white/10 rounded-lg text-[10px] font-bold uppercase transition-all cursor-pointer"
-                  >
-                    Get .apk
-                  </button>
-                </div>
-              ) : (
+              {!latestAppImage && !latestDeb && (
                 <div className="text-[11px] font-mono text-[#8E9A87] py-1">
-                  Closed security validation pipeline
+                  Build available on request
                 </div>
               )}
             </div>
