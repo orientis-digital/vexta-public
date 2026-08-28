@@ -14,6 +14,7 @@ const PHRASES = [
 export default function HomePage() {
   const {
     latestClientVersion,
+    latestClientBuild,
   } = useApp();
 
   // OS Detection State
@@ -152,7 +153,7 @@ export default function HomePage() {
           >
             <i className={`${osInfo.icon} text-sm`}></i>
             <span>Download for {osInfo.name}</span>
-            <span className="text-[10px] bg-black/30 px-1.5 py-0.5 rounded font-mono font-bold">v{latestClientVersion || '0.0.10'}</span>
+            <span className="text-[10px] bg-black/30 px-1.5 py-0.5 rounded font-mono font-bold">v{latestClientVersion || '0.0.13'}{latestClientBuild ? ` (b${latestClientBuild})` : ''}</span>
           </Link>
           <a
             href="#demo-simulator"
@@ -210,7 +211,7 @@ export default function HomePage() {
                 <span className="w-3 h-3 rounded-full bg-red-500/80 inline-block"></span>
                 <span className="w-3 h-3 rounded-full bg-yellow-500/80 inline-block"></span>
                 <span className="w-3 h-3 rounded-full bg-green-500/80 inline-block"></span>
-                <span className="font-mono text-xs text-[#8E9A87] ml-2 font-bold">Vexta Messenger // v{latestClientVersion || '0.0.10'}</span>
+                <span className="font-mono text-xs text-[#8E9A87] ml-2 font-bold">Vexta Messenger // v{latestClientVersion || '0.0.13'}{latestClientBuild ? ` (Build ${latestClientBuild})` : ''}</span>
               </div>
               <div className="flex items-center gap-3 font-mono text-[10px] text-[#D97706] font-bold uppercase tracking-widest">
                 <span className="flex items-center gap-1.5">

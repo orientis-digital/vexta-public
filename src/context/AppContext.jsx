@@ -58,6 +58,7 @@ export function AppProvider({ children }) {
   const [availableVersions, setAvailableVersions] = useState([]);
   const [selectedVersion, setSelectedVersion] = useState(null);
   const [latestClientVersion, setLatestClientVersion] = useState(null);
+  const [latestClientBuild, setLatestClientBuild] = useState(null);
   const [loading, setLoading] = useState(true);
 
   const detectPlatform = (art) => {
@@ -79,9 +80,15 @@ export function AppProvider({ children }) {
     return plat || 'windows';
   };
 
+  const extractBuildNumber = (filename) => {
+    const m = (filename || '').match(/(?:build|[-_]b)(\d+)/i);
+    return m ? parseInt(m[1], 10) : null;
+  };
+
   const parseReleaseArtifacts = (release) => {
     if (!release) return [];
     const version = release.latest_version || release.version || '0.0.1';
+    const releaseBuild = release.latest_build || 0;
     if (release.artifacts && Object.keys(release.artifacts).length > 0) {
       const valid = Object.values(release.artifacts).filter((art) => {
         const fn = (art.filename || '').toLowerCase();
@@ -93,31 +100,42 @@ export function AppProvider({ children }) {
           !fn.includes('builder-debug')
         );
       });
-      return valid.map((art) => ({
-        filename: art.filename,
-        version: version,
-        release_date: release.release_date || '',
-        platform_key: detectPlatform(art),
-        key: art.key,
-        size: art.size_human || '15 MB',
-        sha256: art.sha256 || (release.checksums ? (release.checksums[(art.key || '') + '_sha256'] || release.checksums.sha256) : ''),
-        url: art.url,
-        format: art.format || '',
-        arch: art.arch || 'x64',
-      }));
+      return valid.map((art) => {
+        const buildNum = art.build_number || extractBuildNumber(art.filename) || releaseBuild;
+        return {
+          filename: art.filename,
+          version: version,
+          build_number: buildNum,
+          display_version: buildNum ? `${version} (Build ${buildNum})` : version,
+          release_date: release.release_date || '',
+          platform_key: detectPlatform(art),
+          key: art.key,
+          size: art.size_human || '15 MB',
+          sha256: art.sha256 || (release.checksums ? (release.checksums[(art.key || '') + '_sha256'] || release.checksums.sha256) : ''),
+          url: art.url,
+          format: art.format || '',
+          arch: art.arch || 'x64',
+        };
+      });
     } else if (release.downloads && Object.keys(release.downloads).length > 0) {
-      return Object.entries(release.downloads).map(([key, url]) => ({
-        filename: url.split('/').pop(),
-        version: version,
-        release_date: release.release_date || '',
-        platform_key: key.startsWith('windows') ? 'windows' : key.startsWith('linux') ? 'linux' : key.startsWith('macos') ? 'macos' : 'windows',
-        key: key,
-        size: '15 MB',
-        sha256: (release.checksums && (release.checksums[key + '_sha256'] || release.checksums.sha256)) || '',
-        url: url,
-        format: key,
-        arch: 'x64',
-      }));
+      return Object.entries(release.downloads).map(([key, url]) => {
+        const filename = url.split('/').pop();
+        const buildNum = extractBuildNumber(filename) || releaseBuild;
+        return {
+          filename,
+          version: version,
+          build_number: buildNum,
+          display_version: buildNum ? `${version} (Build ${buildNum})` : version,
+          release_date: release.release_date || '',
+          platform_key: key.startsWith('windows') ? 'windows' : key.startsWith('linux') ? 'linux' : key.startsWith('macos') ? 'macos' : 'windows',
+          key: key,
+          size: '15 MB',
+          sha256: (release.checksums && (release.checksums[key + '_sha256'] || release.checksums.sha256)) || '',
+          url: url,
+          format: key,
+          arch: 'x64',
+        };
+      });
     }
     return [];
   };
@@ -174,7 +192,9 @@ export function AppProvider({ children }) {
           const versions = releases.map((r) => r.latest_version || r.version);
           setAvailableVersions(versions);
           const latestVer = versions[0];
+          const latestBld = releases[0]?.latest_build || 0;
           setLatestClientVersion(latestVer);
+          setLatestClientBuild(latestBld);
           setSelectedVersion(latestVer);
           setClientDownloads(parseReleaseArtifacts(releases[0]));
 
@@ -186,7 +206,9 @@ export function AppProvider({ children }) {
           const dlData = await safeJsonParse(dlRes);
           if (dlData) {
             const ver = dlData.latest_version || '0.0.11';
+            const bld = dlData.latest_build || 0;
             setLatestClientVersion(ver);
+            setLatestClientBuild(bld);
             setSelectedVersion(ver);
             setAvailableVersions([ver]);
             setAllReleases([dlData]);
@@ -258,6 +280,7 @@ export function AppProvider({ children }) {
         setSelectedVersion,
         selectReleaseByVersion,
         latestClientVersion,
+        latestClientBuild,
         loading,
         apiBaseUrl: API_BASE,
         downloadApiBaseUrl: DOWNLOAD_API_BASE

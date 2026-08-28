@@ -10,6 +10,7 @@ export default function DownloadsPage() {
     selectedVersion,
     selectReleaseByVersion,
     latestClientVersion,
+    latestClientBuild,
   } = useApp();
 
   const [detectedOS, setDetectedOS] = useState('windows');
@@ -151,7 +152,7 @@ export default function DownloadsPage() {
                 Vexta for {primary.osName}
               </span>
               <span className="bg-[#D97706] text-white text-[10px] font-mono font-bold px-2 py-0.5 rounded-md uppercase shadow-sm">
-                v{selectedVersion || latestClientVersion || '0.0.12'}
+                v{selectedVersion || latestClientVersion || '0.0.13'}{primary.target?.build_number ? ` (Build ${primary.target.build_number})` : (latestClientBuild ? ` (Build ${latestClientBuild})` : '')}
               </span>
             </div>
             <span className="text-xs text-[#8E9A87] font-mono mt-1">
@@ -473,7 +474,7 @@ export default function DownloadsPage() {
                       className="flex items-center justify-between p-2.5 rounded-xl bg-[#111410] border border-white/5 text-xs font-mono"
                     >
                       <div className="flex items-center gap-3 truncate">
-                        <span className="text-[#D6C5B3] font-bold">v{dl.version}</span>
+                        <span className="text-[#D6C5B3] font-bold">v{dl.version}{dl.build_number ? ` (b${dl.build_number})` : ''}</span>
                         <span className="text-gray-300 truncate">{dl.filename}</span>
                       </div>
                       <div className="flex items-center gap-2 shrink-0">
