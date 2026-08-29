@@ -74,7 +74,7 @@ export function AppProvider({ children }) {
     if (plat === 'macos' || key.includes('mac') || name.includes('mac') || name.endsWith('.dmg') || name.endsWith('.pkg')) {
       return 'macos';
     }
-    if (plat === 'android' || key.includes('android') || name.endsWith('.apk')) {
+    if (plat === 'android' || key.includes('android') || key.includes('apk') || name.includes('android') || name.endsWith('.apk')) {
       return 'android';
     }
     return plat || 'windows';

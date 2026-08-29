@@ -43,23 +43,40 @@ export default function DownloadsPage() {
   const latestAppImage = clientDownloads.find((d) => d.platform_key === 'linux' && d.filename?.endsWith('.AppImage'));
   const latestDeb = clientDownloads.find((d) => d.platform_key === 'linux' && d.filename?.endsWith('.deb'));
   const latestTarGz = clientDownloads.find((d) => d.platform_key === 'linux' && d.filename?.endsWith('.tar.gz'));
-  const latestApk = clientDownloads.find((d) => d.platform_key === 'android' || d.filename?.endsWith('.apk'));
+  const latestApk = clientDownloads.find(
+    (d) => d.platform_key === 'android' || d.key === 'android_apk' || d.filename?.endsWith('.apk')
+  );
 
   const triggerDownload = (dl) => {
     if (!dl) return;
-    confetti({
-      particleCount: 65,
-      spread: 60,
-      origin: { y: 0.75 },
-      colors: ['#D97706', '#5F7057', '#D6C5B3']
-    });
-    if (dl.url) {
-      window.open(dl.url, '_blank');
-    } else if (dl.platform_key && dl.version) {
-      window.open(`https://downloads.nexusec.space/api/v1/vexta/download/${dl.version}/${dl.platform_key}`, '_blank');
-    } else if (dl.platform_key) {
-      window.open(`https://downloads.nexusec.space/api/v1/vexta/download/${dl.platform_key}`, '_blank');
+    try {
+      confetti({
+        particleCount: 65,
+        spread: 60,
+        origin: { y: 0.75 },
+        colors: ['#D97706', '#5F7057', '#D6C5B3'],
+      });
+    } catch {}
+
+    const url =
+      dl.url ||
+      (dl.platform_key && dl.version
+        ? `https://downloads.nexusec.space/api/v1/vexta/download/${dl.version}/${dl.platform_key}`
+        : `https://downloads.nexusec.space/api/v1/vexta/download/${dl.platform_key || 'windows'}`);
+
+    // Use native anchor trigger to ensure proper APK / binary download handling across all mobile & desktop browsers
+    const link = document.createElement('a');
+    link.href = url;
+    if (dl.filename) {
+      link.setAttribute('download', dl.filename);
     }
+    link.setAttribute('target', '_blank');
+    link.setAttribute('rel', 'noopener noreferrer');
+    document.body.appendChild(link);
+    link.click();
+    setTimeout(() => {
+      document.body.removeChild(link);
+    }, 100);
   };
 
   const copyHashToClipboard = (hash, filename, e) => {
