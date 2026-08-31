@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
 import confetti from 'canvas-confetti';
 
@@ -58,25 +58,34 @@ export default function DownloadsPage() {
       });
     } catch {}
 
+    const isApk = dl.platform_key === 'android' || dl.key === 'android_apk' || (dl.filename && dl.filename.endsWith('.apk'));
+    let downloadFilename = dl.filename;
+    if (!downloadFilename) {
+      downloadFilename = isApk ? `vexta-v${dl.version || 'latest'}.apk` : `vexta-${dl.platform_key || 'client'}`;
+    }
+    if (isApk && !downloadFilename.endsWith('.apk')) {
+      downloadFilename = `${downloadFilename}.apk`;
+    }
+
     const url =
       dl.url ||
       (dl.platform_key && dl.version
         ? `https://downloads.nexusec.space/api/v1/vexta/download/${dl.version}/${dl.platform_key}`
         : `https://downloads.nexusec.space/api/v1/vexta/download/${dl.platform_key || 'windows'}`);
 
-    // Use native anchor trigger to ensure proper APK / binary download handling across all mobile & desktop browsers
+    // Native trigger ensuring proper MIME handling on mobile and desktop
     const link = document.createElement('a');
     link.href = url;
-    if (dl.filename) {
-      link.setAttribute('download', dl.filename);
+    link.setAttribute('download', downloadFilename);
+    if (isApk) {
+      link.setAttribute('type', 'application/vnd.android.package-archive');
     }
-    link.setAttribute('target', '_blank');
     link.setAttribute('rel', 'noopener noreferrer');
     document.body.appendChild(link);
     link.click();
     setTimeout(() => {
       document.body.removeChild(link);
-    }, 100);
+    }, 150);
   };
 
   const copyHashToClipboard = (hash, filename, e) => {
