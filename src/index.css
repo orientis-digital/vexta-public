@@ -1,33 +1,44 @@
 @import "tailwindcss";
 
 @theme {
-  --color-tech-blue: #5F7057;
-  --color-tech-indigo: #D97706;
-  --color-tech-sky: #D6C5B3;
-  --color-tech-black: #0C0E0B;
-  --color-tech-gray: #151813;
-  --color-tech-slate: #272D24;
-  --color-muted: #8E9A87;
+  --color-brand-neon: #39FF14;
+  --color-brand-green: #22C55E;
+  --color-brand-emerald: #10B981;
+  --color-brand-mint: #4ADE80;
+  --color-brand-sand: #D6C5B3;
+  --color-surface-canvas: #08080A;
+  --color-surface-card: #0E120D;
+  --color-surface-hover: #141C13;
+  --color-surface-elevated: #182216;
+  --color-border-subtle: #1C241B;
+  --color-border-card: #243022;
+  --color-border-active: #22C55E;
+  --color-muted: #7E927F;
+  --shadow-bento: 0 4px 24px rgba(0, 0, 0, 0.6);
+  --shadow-bento-hover: 0 12px 35px -5px rgba(34, 197, 94, 0.22);
+  --shadow-neon: 0 0 15px rgba(57, 255, 20, 0.25);
   --font-sans: "Plus Jakarta Sans", "Inter", system-ui, sans-serif;
   --font-mono: "JetBrains Mono", monospace;
 }
 
 :root {
-  --tech-black: #0C0E0B;
-  --tech-gray: #151813;
-  --tech-slate: #272D24;
-  --tech-blue: #5F7057;
-  --tech-indigo: #D97706;
-  --tech-sky: #D6C5B3;
-  --muted: #8E9A87;
+  --canvas-bg: #08080A;
+  --surface-card: #0E120D;
+  --surface-hover: #141C13;
+  --surface-elevated: #182216;
+  --border-card: #243022;
+  --brand-green: #22C55E;
+  --brand-neon: #39FF14;
+  --brand-mint: #4ADE80;
+  --text-muted: #7E927F;
 }
 
 body {
   font-family: "Plus Jakarta Sans", "Inter", sans-serif;
-  background-color: var(--tech-black);
+  background-color: var(--canvas-bg);
   color: #e2e8f0;
-  font-size: 15px;
-  line-height: 1.6;
+  font-size: 16px;
+  line-height: 1.65;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -38,24 +49,40 @@ h1, h2, h3, h4, h5, h6 {
 .grid-bg {
   background-size: 40px 40px;
   background-image: 
-    linear-gradient(to right, rgba(95, 112, 87, 0.05) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(95, 112, 87, 0.05) 1px, transparent 1px);
+    linear-gradient(to right, rgba(34, 197, 94, 0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(34, 197, 94, 0.04) 1px, transparent 1px);
+}
+
+.circuit-grid {
+  background-size: 60px 60px;
+  background-image: 
+    radial-gradient(circle at 1px 1px, rgba(34, 197, 94, 0.12) 1px, transparent 0);
 }
 
 .text-brand-gradient {
-  background: linear-gradient(135deg, var(--tech-sky) 0%, var(--tech-indigo) 100%);
+  background: linear-gradient(135deg, #FFFFFF 0%, #4ADE80 45%, #22C55E 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
-.glow-success {
-  text-shadow: 0 0 12px rgba(214, 197, 179, 0.35);
+.text-neon-gradient {
+  background: linear-gradient(135deg, #E6F7EC 0%, #39FF14 50%, #10B981 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.glow-brand {
+  text-shadow: 0 0 16px rgba(34, 197, 94, 0.4);
+}
+
+.glow-neon {
+  text-shadow: 0 0 20px rgba(57, 255, 20, 0.55);
 }
 
 .typewriter::after {
   content: '|';
   animation: blink 1s step-end infinite;
-  color: var(--tech-indigo);
+  color: var(--brand-green);
 }
 
 @keyframes blink {
@@ -67,23 +94,23 @@ h1, h2, h3, h4, h5, h6 {
   animation: blink 1s step-end infinite;
 }
 
-/* Solid Tactical Bento Panels (No Glassmorphism / Blur) */
-.glass-panel, .solid-panel {
-  background: #141813;
-  border: 1px solid #293226;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.04);
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+/* Tactical Solid Bento Panels */
+.solid-panel, .glass-panel, .bento-panel {
+  background: #0E120D;
+  border: 1px solid #243022;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.glass-panel-hover, .solid-panel-hover {
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+.solid-panel-hover, .glass-panel-hover, .bento-hover {
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.glass-panel-hover:hover, .solid-panel-hover:hover {
-  background: #1a2019;
-  border-color: rgba(217, 119, 6, 0.45);
-  box-shadow: 0 8px 25px -5px rgba(217, 119, 6, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.06);
-  transform: translateY(-3px);
+.solid-panel-hover:hover, .glass-panel-hover:hover, .bento-hover:hover {
+  background: #141C13;
+  border-color: rgba(34, 197, 94, 0.45);
+  box-shadow: 0 8px 30px -5px rgba(34, 197, 94, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.07);
+  transform: translateY(-2px);
 }
 
 @keyframes float {
@@ -95,7 +122,16 @@ h1, h2, h3, h4, h5, h6 {
   animation: float 5s ease-in-out infinite;
 }
 
-/* Packet & Cable Flow Animations */
+@keyframes scan-beam {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(250%); }
+}
+
+.animate-scan-beam {
+  animation: scan-beam 1.8s infinite cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Packet & Cable Flow Animations (Green Laser Routing) */
 @keyframes packet-h-forward {
   0% { left: 0%; opacity: 0; transform: translate(-50%, -50%); }
   12% { opacity: 1; }
@@ -151,20 +187,21 @@ h1, h2, h3, h4, h5, h6 {
   animation: packet-v-backward 2.5s infinite linear;
 }
 
-/* Custom scrollbar */
+/* Custom Tactical Scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
 ::-webkit-scrollbar-track {
-  background: var(--tech-black);
+  background: var(--canvas-bg);
 }
 ::-webkit-scrollbar-thumb {
-  background: var(--tech-slate);
+  background: #1C261B;
   border-radius: 4px;
+  border: 1px solid #243022;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--tech-blue);
+  background: var(--brand-green);
 }
 
 /* Markdown Styling inside Announcements & Docs */
@@ -189,12 +226,12 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .markdown-body a {
-  color: var(--tech-indigo);
+  color: var(--brand-green);
   text-decoration: underline;
   transition: color 0.2s;
 }
 .markdown-body a:hover {
-  color: var(--tech-sky);
+  color: var(--brand-neon);
 }
 
 .markdown-body ul {
@@ -213,17 +250,17 @@ h1, h2, h3, h4, h5, h6 {
 
 .markdown-body code {
   font-family: "JetBrains Mono", monospace;
-  background-color: #0d100c;
+  background-color: #060805;
   padding: 0.15rem 0.35rem;
   border-radius: 0.25rem;
-  border: 1px solid #283025;
-  color: var(--tech-sky);
+  border: 1px solid #1F291E;
+  color: #4ADE80;
   font-size: 0.85em;
 }
 
 .markdown-body pre {
-  background-color: #0a0d09;
-  border: 1px solid #283025;
+  background-color: #060805;
+  border: 1px solid #1F291E;
   padding: 0.75rem;
   border-radius: 0.5rem;
   margin-bottom: 0.75rem;
@@ -237,12 +274,12 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .markdown-body blockquote {
-  border-left: 3px solid var(--tech-indigo);
+  border-left: 3px solid var(--brand-green);
   padding-left: 0.75rem;
-  color: var(--muted);
+  color: var(--text-muted);
   font-style: italic;
   margin-bottom: 0.75rem;
-  background: #171c15;
+  background: #101610;
   padding-top: 0.5rem;
   padding-bottom: 0.5rem;
   border-radius: 0 0.375rem 0.375rem 0;
@@ -254,19 +291,4 @@ h1, h2, h3, h4, h5, h6 {
 }
 .markdown-body em {
   font-style: italic;
-}
-
-/* Tactical Cyber Slate Panel */
-.cyber-panel {
-  background: #141813;
-  border: 1px solid #283025;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.5);
-}
-
-.cyber-border-glow {
-  transition: all 0.3s ease;
-}
-.cyber-border-glow:hover {
-  border-color: #D97706;
-  box-shadow: 0 0 12px rgba(217, 119, 6, 0.25);
 }

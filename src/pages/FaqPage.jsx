@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import BentoCard from '../components/ui/BentoCard';
+import SectionHeader from '../components/ui/SectionHeader';
 
 export default function FaqPage() {
   const [search, setSearch] = useState('');
@@ -87,39 +89,37 @@ export default function FaqPage() {
   });
 
   return (
-    <div className="flex flex-col gap-10 py-4 text-gray-300 min-h-[75vh]">
-      {/* Hero Header */}
-      <div className="glass-panel p-8 md:p-10 rounded-3xl text-center flex flex-col gap-4 relative overflow-hidden border border-white/10 shadow-2xl">
-        <div className="absolute inset-0 bg-gradient-to-tr from-[#5F7057]/10 via-transparent to-[#D97706]/10 -z-10"></div>
-        <div className="text-5xl text-[#D97706]">
-          <i className="fa-solid fa-circle-question animate-float"></i>
+    <div className="flex flex-col gap-10 py-4 text-gray-200 min-h-[75vh] max-w-5xl mx-auto w-full">
+      {/* Hero Header Bento */}
+      <BentoCard hover={false} className="p-8 md:p-12 text-center flex flex-col items-center gap-5 relative overflow-hidden">
+        <div className="w-16 h-16 rounded-2xl bg-[#22C55E]/15 border border-[#22C55E]/40 flex items-center justify-center text-3xl text-[#39FF14] shadow-[0_0_20px_rgba(57,255,20,0.2)]">
+          <i className="fa-solid fa-circle-question"></i>
         </div>
-        <h1 className="text-2xl md:text-4xl font-extrabold uppercase tracking-wider text-white">
-          Frequently Asked Questions
-        </h1>
-        <p className="text-xs md:text-sm text-gray-300 max-w-xl mx-auto font-sans leading-relaxed">
-          Find instant answers regarding zero-knowledge security models, cryptographic key pairs, mutual auth, and client setups.
-        </p>
-      </div>
+        <SectionHeader
+          tag="// KNOWLEDGE BASE"
+          title="Frequently Asked Questions"
+          description="Find instant answers regarding zero-knowledge security models, cryptographic key pairs, mutual auth, and client setups."
+        />
+      </BentoCard>
 
-      {/* Search & Category Filter Toolbar */}
-      <div className="flex flex-col lg:flex-row justify-between items-center gap-4 bg-[#0C0E0B]/60 p-4 rounded-3xl border border-white/10 shadow-xl">
+      {/* Search & Category Filter Toolbar Bento */}
+      <BentoCard hover={false} className="p-5 flex flex-col lg:flex-row justify-between items-center gap-4 shadow-xl">
         {/* Category Pills */}
-        <div className="flex flex-wrap gap-2 w-full lg:w-auto">
+        <div className="flex flex-wrap gap-2.5 w-full lg:w-auto">
           {categories.map((cat) => (
             <button
               key={cat.key}
               onClick={() => setActiveCategory(cat.key)}
-              className={`px-4 py-2 font-mono text-xs font-bold uppercase rounded-xl transition-all cursor-pointer flex items-center gap-2 ${
+              className={`px-4 py-2.5 font-mono text-xs md:text-sm font-bold uppercase rounded-xl transition-all cursor-pointer flex items-center gap-2.5 border ${
                 activeCategory === cat.key
-                  ? 'bg-[#D97706] text-white shadow-tech-sm'
-                  : 'bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white'
+                  ? 'bg-[#22C55E] text-black border-[#39FF14] shadow-md'
+                  : 'bg-[#060805] text-gray-300 border-[#243022] hover:text-white hover:bg-[#141C13]'
               }`}
             >
               <span>{cat.label}</span>
               <span
-                className={`px-1.5 py-0.5 rounded text-[9px] ${
-                  activeCategory === cat.key ? 'bg-black/30 text-white' : 'bg-white/10 text-gray-400'
+                className={`px-2 py-0.5 rounded text-xs ${
+                  activeCategory === cat.key ? 'bg-black/30 text-black font-extrabold' : 'bg-white/10 text-gray-400'
                 }`}
               >
                 {cat.count}
@@ -131,42 +131,42 @@ export default function FaqPage() {
         {/* Search Input & Expand Actions */}
         <div className="flex items-center gap-3 w-full lg:w-auto justify-end">
           <div className="relative w-full lg:w-72">
-            <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#7C8775]">
-              <i className="fa-solid fa-magnifying-glass"></i>
+            <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#7E927F]">
+              <i className="fa-solid fa-magnifying-glass text-xs"></i>
             </span>
             <input
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="SEARCH FAQS..."
-              className="w-full bg-[#151813] border border-white/10 rounded-xl pl-9 pr-8 py-2 font-mono text-xs text-gray-200 focus:outline-none focus:border-[#D97706] placeholder:text-gray-600 uppercase tracking-wider"
+              className="w-full bg-[#060805] border border-[#243022] rounded-xl pl-9 pr-8 py-2.5 font-mono text-xs md:text-sm text-gray-100 focus:outline-none focus:border-[#22C55E] placeholder:text-[#7E927F] uppercase tracking-wider"
             />
             {search && (
               <button
                 onClick={() => setSearch('')}
-                className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 hover:text-white"
+                className="absolute inset-y-0 right-0 pr-3 flex items-center text-[#7E927F] hover:text-white cursor-pointer"
               >
-                <i className="fa-solid fa-xmark"></i>
+                <i className="fa-solid fa-xmark text-xs"></i>
               </button>
             )}
           </div>
 
           <button
             onClick={expandAll}
-            className="px-3 py-2 font-mono text-[10px] font-bold uppercase border border-white/10 text-gray-300 hover:bg-white/5 rounded-xl transition-all shrink-0 cursor-pointer hidden sm:block"
+            className="px-3.5 py-2.5 font-mono text-xs font-bold uppercase border border-[#243022] text-gray-200 hover:text-white hover:bg-[#141C13] rounded-xl transition-all shrink-0 cursor-pointer hidden sm:block"
             title="Expand All Items"
           >
             Expand All
           </button>
           <button
             onClick={collapseAll}
-            className="px-3 py-2 font-mono text-[10px] font-bold uppercase border border-white/10 text-gray-400 hover:bg-white/5 rounded-xl transition-all shrink-0 cursor-pointer hidden sm:block"
+            className="px-3.5 py-2.5 font-mono text-xs font-bold uppercase border border-[#243022] text-[#7E927F] hover:text-white hover:bg-[#141C13] rounded-xl transition-all shrink-0 cursor-pointer hidden sm:block"
             title="Collapse All Items"
           >
             Collapse All
           </button>
         </div>
-      </div>
+      </BentoCard>
 
       {/* FAQ Accordion List */}
       <div className="flex flex-col gap-4">
@@ -176,31 +176,31 @@ export default function FaqPage() {
             return (
               <div
                 key={faq.id}
-                className={`glass-panel rounded-2xl overflow-hidden border transition-all duration-300 ${
-                  isOpen ? 'border-[#D97706]/40 bg-[#151813]/90 shadow-xl' : 'border-white/10 hover:border-white/20'
+                className={`solid-panel rounded-2xl overflow-hidden border transition-all duration-300 ${
+                  isOpen ? 'border-[#22C55E]/50 bg-[#101610] shadow-[0_4px_25px_rgba(34,197,94,0.15)]' : 'border-[#243022] hover:border-[#22C55E]/40'
                 }`}
               >
                 <button
                   onClick={() => toggleFaq(faq.id)}
-                  className="w-full text-left p-6 flex justify-between items-center gap-4 focus:outline-none cursor-pointer group"
+                  className="w-full text-left p-6 flex justify-between items-center gap-4 focus:outline-none cursor-pointer group select-none"
                 >
-                  <span className="text-xs md:text-sm font-bold text-white group-hover:text-[#D6C5B3] transition-colors flex items-center gap-3">
-                    <span className="font-mono text-[#D97706] font-bold text-xs uppercase shrink-0">
+                  <span className="text-sm md:text-base font-bold text-white group-hover:text-[#4ADE80] transition-colors flex items-center gap-3">
+                    <span className="font-mono text-[#39FF14] font-bold text-xs md:text-sm uppercase shrink-0">
                       [{faq.category}]
                     </span>
                     <span>{faq.question}</span>
                   </span>
                   <span
-                    className={`w-8 h-8 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-[#D97706] transition-transform duration-300 shrink-0 ${
-                      isOpen ? 'rotate-180 bg-[#D97706]/20 border-[#D97706]/40 text-white' : ''
+                    className={`w-9 h-9 rounded-xl bg-[#060805] border border-[#243022] flex items-center justify-center text-[#22C55E] transition-transform duration-300 shrink-0 ${
+                      isOpen ? 'rotate-180 bg-[#22C55E]/20 border-[#22C55E]/50 text-[#39FF14]' : ''
                     }`}
                   >
-                    <i className="fa-solid fa-chevron-down text-xs"></i>
+                    <i className="fa-solid fa-chevron-down text-sm"></i>
                   </span>
                 </button>
 
                 {isOpen && (
-                  <div className="border-t border-white/10 bg-[#0C0E0B]/60 p-6 text-xs md:text-sm text-gray-300 leading-relaxed font-sans animate-in fade-in duration-200">
+                  <div className="border-t border-[#243022] bg-[#060805] p-6 text-sm md:text-base text-gray-200 leading-relaxed font-sans animate-in fade-in duration-200">
                     {faq.answer}
                   </div>
                 )}
@@ -208,9 +208,9 @@ export default function FaqPage() {
             );
           })
         ) : (
-          <div className="glass-panel p-12 rounded-3xl border border-white/10 flex flex-col items-center justify-center text-center gap-4">
-            <i className="fa-solid fa-magnifying-glass text-gray-500 text-3xl animate-pulse"></i>
-            <div className="text-xs font-mono text-gray-400 uppercase">
+          <BentoCard hover={false} className="p-12 items-center justify-center text-center gap-4">
+            <i className="fa-solid fa-magnifying-glass text-[#7E927F] text-3xl animate-pulse"></i>
+            <div className="text-sm font-mono text-gray-400 uppercase">
               No matching questions found for "{search}"
             </div>
             <button
@@ -218,35 +218,35 @@ export default function FaqPage() {
                 setSearch('');
                 setActiveCategory('all');
               }}
-              className="px-4 py-2 font-mono text-xs font-bold uppercase bg-[#D97706] text-white rounded-xl shadow-tech-sm cursor-pointer"
+              className="px-5 py-2.5 font-mono text-xs md:text-sm font-bold uppercase bg-[#22C55E] text-black rounded-xl shadow-md cursor-pointer"
             >
               Reset Search Filter
             </button>
-          </div>
+          </BentoCard>
         )}
       </div>
 
-      {/* Direct Manual & Support Banner */}
-      <div className="glass-panel p-6 md:p-8 rounded-3xl flex flex-col md:flex-row items-center justify-between gap-6 border border-white/10 shadow-xl">
+      {/* Direct Manual & Support Banner Bento */}
+      <BentoCard className="p-7 md:p-9 flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl">
         <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-2xl bg-[#5F7057]/20 border border-[#5F7057]/40 flex items-center justify-center text-[#D6C5B3] text-2xl shrink-0">
+          <div className="w-14 h-14 rounded-2xl bg-[#22C55E]/15 border border-[#22C55E]/30 flex items-center justify-center text-[#39FF14] text-2xl shrink-0">
             <i className="fa-solid fa-book-open"></i>
           </div>
-          <div className="flex flex-col gap-1 text-left">
-            <h3 className="text-base font-extrabold uppercase tracking-wider text-white">Need Additional Protocol Details?</h3>
-            <p className="text-xs text-gray-400 font-sans">
+          <div className="flex flex-col gap-1.5 text-left">
+            <h3 className="text-lg font-extrabold uppercase tracking-wider text-white font-mono">Need Additional Protocol Details?</h3>
+            <p className="text-xs md:text-sm text-gray-300 font-sans">
               Consult the complete technical specifications and client setup field manual in our documentation.
             </p>
           </div>
         </div>
         <Link
           to="/docs"
-          className="px-6 py-3.5 font-mono text-xs font-bold uppercase tracking-widest text-white bg-[#5F7057] hover:bg-[#5F7057]/80 rounded-xl transition-all shrink-0 cursor-pointer no-underline flex items-center gap-2 shadow-tech-sm"
+          className="px-6 py-4 font-mono text-xs md:text-sm font-bold uppercase tracking-widest text-black bg-[#22C55E] hover:bg-[#39FF14] rounded-xl transition-all shrink-0 cursor-pointer no-underline flex items-center gap-2 shadow-lg border border-[#39FF14]"
         >
           <span>Open Field Manual</span>
-          <i className="fa-solid fa-arrow-right text-xs"></i>
+          <i className="fa-solid fa-arrow-right text-xs text-black"></i>
         </Link>
-      </div>
+      </BentoCard>
     </div>
   );
 }

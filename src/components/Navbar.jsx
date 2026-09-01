@@ -18,26 +18,26 @@ export default function Navbar() {
 
   return (
     <>
-      <header className="h-[76px] fixed top-4 inset-x-[5%] max-w-[1400px] mx-auto z-[999] solid-panel bg-[#141813] rounded-2xl shadow-[0_8px_30px_rgba(0,0,0,0.8)] border border-[#293226]">
+      <header className="h-[80px] fixed top-4 inset-x-[5%] max-w-[1400px] mx-auto z-[999] solid-panel bg-[#0E120D]/95 backdrop-blur-md rounded-2xl shadow-[0_8px_30px_rgba(0,0,0,0.85)] border border-[#243022]">
         <div className="container flex justify-between items-center h-full relative mx-auto px-6">
           {/* Logo Branding */}
           <NavLink to="/" onClick={() => setMobileOpen(false)} className="flex items-center gap-3.5 no-underline group cursor-pointer">
-            <div className="relative w-10 h-10 border border-[#D97706]/30 rounded-xl flex items-center justify-center bg-[#D97706]/10 shadow-[0_0_12px_rgba(217,119,6,0.15)] group-hover:shadow-[0_0_20px_rgba(217,119,6,0.35)] group-hover:border-[#D97706] transition-all duration-300 select-none p-1.5 overflow-hidden">
+            <div className="relative w-11 h-11 border border-[#22C55E]/40 rounded-xl flex items-center justify-center bg-[#22C55E]/10 shadow-[0_0_15px_rgba(34,197,94,0.2)] group-hover:shadow-[0_0_25px_rgba(57,255,20,0.45)] group-hover:border-[#39FF14] transition-all duration-300 select-none p-1.5 overflow-hidden">
               <img src="/img/vexta-logo.png" alt="Vexta Logo" className="w-full h-full object-contain rounded-lg transition-transform duration-300 group-hover:scale-105" />
               {/* Live Status Dot */}
-              <span className="absolute bottom-0.5 right-0.5 flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#4ADE80] opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-[#4ADE80]"></span>
+              <span className="absolute bottom-0.5 right-0.5 flex h-2.5 w-2.5">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#39FF14] opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#39FF14]"></span>
               </span>
             </div>
             <div className="flex flex-col justify-center">
               <div className="flex items-center gap-1">
-                <span className="font-sans text-sm font-extrabold bg-gradient-to-r from-[#D6C5B3] via-[#D97706] to-[#5F7057] bg-clip-text text-transparent tracking-tight leading-none uppercase">
+                <span className="font-sans text-base md:text-lg font-extrabold text-neon-gradient tracking-tight leading-none uppercase">
                   {bridgeName}
                 </span>
-                <span className="text-[#D97706] animate-blink font-bold text-sm leading-none">_</span>
+                <span className="text-[#39FF14] animate-blink font-bold text-base leading-none">_</span>
               </div>
-              <span className="font-sans text-[0.5rem] text-[#8E9A87] tracking-[0.2em] uppercase mt-0.5 border-t border-[#272D24]/50 pt-0.5 inline-block w-full">
+              <span className="font-sans text-[10px] md:text-[11px] text-[#7E927F] tracking-[0.2em] uppercase mt-1 border-t border-[#1C241B] pt-0.5 inline-block w-full font-bold">
                 Zero-Knowledge Relay
               </span>
             </div>
@@ -52,8 +52,8 @@ export default function Navbar() {
                   <li key={link.path}>
                     <NavLink
                       to={link.path}
-                      className={`text-xs font-bold tracking-widest transition-colors relative py-1.5 uppercase cursor-pointer after:content-[''] after:absolute after:bottom-0 after:left-0 after:h-[2px] after:bg-gradient-to-r after:from-[#D6C5B3] after:to-[#D97706] hover:after:w-full after:transition-all after:duration-300 ${
-                        isActive ? 'text-[#D97706] after:w-full' : 'text-gray-300 hover:text-[#D97706] after:w-0'
+                      className={`text-sm font-bold tracking-wider transition-colors relative py-1.5 uppercase cursor-pointer after:content-[''] after:absolute after:bottom-0 after:left-0 after:h-[2px] after:bg-gradient-to-r after:from-[#4ADE80] after:to-[#22C55E] hover:after:w-full after:transition-all after:duration-300 ${
+                        isActive ? 'text-[#39FF14] after:w-full font-extrabold' : 'text-gray-200 hover:text-[#4ADE80] after:w-0'
                       }`}
                     >
                       {link.name}
@@ -66,9 +66,9 @@ export default function Navbar() {
             {/* Quick Action CTA Button */}
             <NavLink
               to="/downloads"
-              className="hidden lg:flex items-center gap-2 px-3.5 py-1.5 rounded-xl font-mono text-[11px] font-bold uppercase tracking-wider text-[#D6C5B3] bg-[#D97706]/15 border border-[#D97706]/40 hover:bg-[#D97706]/25 hover:border-[#D97706] hover:text-white shadow-[0_0_10px_rgba(217,119,6,0.15)] hover:shadow-[0_0_18px_rgba(217,119,6,0.35)] transition-all duration-300 no-underline"
+              className="hidden lg:flex items-center gap-2 px-4 py-2 rounded-xl font-mono text-xs md:text-sm font-bold uppercase tracking-wider text-white bg-[#22C55E]/20 border border-[#22C55E]/40 hover:bg-[#22C55E] hover:border-[#39FF14] hover:text-black shadow-[0_0_12px_rgba(34,197,94,0.2)] hover:shadow-[0_0_22px_rgba(57,255,20,0.5)] transition-all duration-300 no-underline cursor-pointer"
             >
-              <i className="fa-solid fa-download text-xs text-[#D97706]"></i>
+              <i className="fa-solid fa-download text-xs text-[#39FF14] group-hover:text-black"></i>
               <span>Get Client</span>
             </NavLink>
 
@@ -76,9 +76,9 @@ export default function Navbar() {
             <button
               onClick={() => setMobileOpen(!mobileOpen)}
               aria-label="Toggle navigation menu"
-              className="md:hidden flex flex-col justify-center items-center w-10 h-10 border border-[#293226] rounded-xl bg-[#141813] text-[#D6C5B3] hover:text-white hover:border-[#D97706] transition-colors cursor-pointer"
+              className="md:hidden flex flex-col justify-center items-center w-11 h-11 border border-[#243022] rounded-xl bg-[#0E120D] text-[#4ADE80] hover:text-white hover:border-[#22C55E] transition-colors cursor-pointer"
             >
-              <i className={`fa-solid ${mobileOpen ? 'fa-xmark text-lg' : 'fa-bars text-sm'}`}></i>
+              <i className={`fa-solid ${mobileOpen ? 'fa-xmark text-xl' : 'fa-bars text-base'}`}></i>
             </button>
           </nav>
         </div>
@@ -86,7 +86,7 @@ export default function Navbar() {
 
       {/* Mobile Drawer Menu */}
       {mobileOpen && (
-        <div className="fixed inset-0 bg-[#0C0E0B] z-[998] flex flex-col justify-center items-center p-6 md:hidden animate-in fade-in duration-200">
+        <div className="fixed inset-0 bg-[#08080A]/98 backdrop-blur-xl z-[998] flex flex-col justify-center items-center p-6 md:hidden animate-in fade-in duration-200">
           <ul className="flex flex-col list-none gap-6 text-center w-full max-w-xs">
             {navLinks.map((link) => {
               const isActive = link.path === '/' ? location.pathname === '/' : location.pathname.startsWith(link.path);
@@ -95,8 +95,8 @@ export default function Navbar() {
                   <NavLink
                     to={link.path}
                     onClick={() => setMobileOpen(false)}
-                    className={`text-base font-extrabold tracking-widest block py-2 uppercase no-underline transition-colors ${
-                      isActive ? 'text-[#D97706]' : 'text-gray-300 hover:text-white'
+                    className={`text-lg font-extrabold tracking-widest block py-2 uppercase no-underline transition-colors ${
+                      isActive ? 'text-[#39FF14]' : 'text-gray-200 hover:text-white'
                     }`}
                   >
                     {link.name}
@@ -104,13 +104,13 @@ export default function Navbar() {
                 </li>
               );
             })}
-            <li className="pt-4 border-t border-[#293226]">
+            <li className="pt-4 border-t border-[#243022]">
               <NavLink
                 to="/downloads"
                 onClick={() => setMobileOpen(false)}
-                className="flex items-center justify-center gap-2 w-full py-3 rounded-xl font-mono text-xs font-bold uppercase tracking-wider text-white bg-gradient-to-r from-[#5F7057] to-[#D97706] border border-[#D97706]/40 no-underline shadow-[0_0_15px_rgba(217,119,6,0.25)]"
+                className="flex items-center justify-center gap-2 w-full py-3.5 rounded-xl font-mono text-sm font-bold uppercase tracking-wider text-black bg-[#22C55E] hover:bg-[#39FF14] border border-[#39FF14] no-underline shadow-[0_0_20px_rgba(34,197,94,0.35)]"
               >
-                <i className="fa-solid fa-download text-xs"></i>
+                <i className="fa-solid fa-download text-sm"></i>
                 <span>Download Vexta Client</span>
               </NavLink>
             </li>

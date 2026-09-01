@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import confetti from 'canvas-confetti';
+import BentoCard from '../components/ui/BentoCard';
+import StatusBadge from '../components/ui/StatusBadge';
+import SectionHeader from '../components/ui/SectionHeader';
 
 export default function AboutPage() {
   const { bridgeName } = useApp();
@@ -60,12 +63,14 @@ export default function AboutPage() {
       title: reportTitle
     });
 
-    confetti({
-      particleCount: 65,
-      spread: 60,
-      origin: { y: 0.8 },
-      colors: ['#D97706', '#5F7057', '#D6C5B3']
-    });
+    try {
+      confetti({
+        particleCount: 65,
+        spread: 60,
+        origin: { y: 0.8 },
+        colors: ['#39FF14', '#22C55E', '#4ADE80']
+      });
+    } catch {}
 
     setReportTitle('');
     setReportDetails('');
@@ -73,85 +78,83 @@ export default function AboutPage() {
   };
 
   return (
-    <div className="flex flex-col gap-12 py-4 text-gray-300 min-h-[75vh]">
-      {/* Hero Header */}
-      <div className="glass-panel p-8 md:p-10 rounded-3xl text-center flex flex-col gap-4 relative overflow-hidden border border-white/10 shadow-2xl">
-        <div className="absolute inset-0 bg-gradient-to-tr from-[#5F7057]/10 via-transparent to-[#D97706]/10 -z-10"></div>
-        <div className="text-5xl text-[#D6C5B3]">
-          <i className="fa-solid fa-circle-info animate-float"></i>
+    <div className="flex flex-col gap-10 py-4 text-gray-200 min-h-[75vh] max-w-5xl mx-auto w-full">
+      {/* Hero Header Bento */}
+      <BentoCard hover={false} className="p-8 md:p-12 text-center flex flex-col items-center gap-5 relative overflow-hidden">
+        <div className="w-16 h-16 rounded-2xl bg-[#22C55E]/15 border border-[#22C55E]/40 flex items-center justify-center text-3xl text-[#39FF14] shadow-[0_0_20px_rgba(57,255,20,0.2)]">
+          <i className="fa-solid fa-circle-info"></i>
         </div>
-        <h1 className="text-2xl md:text-4xl font-extrabold uppercase tracking-wider text-white">
-          About {bridgeName}
-        </h1>
-        <p className="text-xs md:text-sm text-gray-300 max-w-xl mx-auto font-sans leading-relaxed">
-          A zero-trust, metadata-blind WebSocket relay server for the Vexta encrypted messenger, engineered by <strong>Orientis Digital</strong>.
-        </p>
-      </div>
+        <SectionHeader
+          tag="// ABOUT VEXTA"
+          title={`About ${bridgeName}`}
+          description="A zero-trust, metadata-blind WebSocket relay server for the Vexta encrypted messenger, engineered by Orientis Digital."
+        />
+      </BentoCard>
 
-      {/* Core Architecture */}
-      <div className="glass-panel p-6 md:p-8 rounded-3xl flex flex-col gap-6 border border-white/10 shadow-xl">
-        <h2 className="text-sm font-bold uppercase tracking-wider text-white flex items-center gap-2 font-mono">
-          <span className="inline-block w-1.5 h-3.5 bg-[#5F7057]"></span> Zero-Trust Architecture Overview
+      {/* Core Architecture Bento Grid */}
+      <BentoCard hover={false} className="p-7 md:p-9 flex flex-col gap-6 shadow-xl">
+        <h2 className="text-base md:text-lg font-bold uppercase tracking-wider text-white flex items-center gap-2 font-mono">
+          <span className="inline-block w-2 h-4 bg-[#22C55E]"></span> Zero-Trust Architecture Overview
         </h2>
-        <p className="leading-relaxed font-sans text-xs md:text-sm text-[#D6C5B3] font-bold">
-          Vexta is the client messaging app, engineered by Orientis Digital. Vexta Bridge is the zero-trust backend relay node powering the secure messaging pipeline.
+        <p className="leading-relaxed font-sans text-sm md:text-base text-gray-200">
+          <strong className="text-white">Vexta</strong> is the client messaging app, engineered by <strong className="text-[#39FF14]">Orientis Digital</strong>. <strong className="text-white">Vexta Bridge</strong> is the zero-trust backend relay node powering the secure messaging pipeline.
         </p>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-2">
-          <div className="bg-[#0C0E0B]/60 p-5 rounded-2xl border border-white/10 flex flex-col gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[#5F7057]/20 border border-[#5F7057]/40 flex items-center justify-center text-[#D6C5B3] text-xl">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mt-2">
+          <div className="bg-[#060805] p-6 rounded-2xl border border-[#243022] flex flex-col gap-3.5">
+            <div className="w-11 h-11 rounded-xl bg-[#22C55E]/15 border border-[#22C55E]/30 flex items-center justify-center text-[#39FF14] text-2xl">
               <i className="fa-solid fa-eye-slash"></i>
             </div>
-            <h3 className="font-bold text-white uppercase text-xs tracking-wider">Metadata-Blind Relay</h3>
-            <p className="text-xs text-gray-400 leading-relaxed">
+            <h3 className="font-bold text-white uppercase text-sm md:text-base tracking-wider font-mono">Metadata-Blind Relay</h3>
+            <p className="text-xs md:text-sm text-gray-300 leading-relaxed font-sans">
               Messages are encrypted on device using hybrid cryptography before transmission. The bridge cannot inspect sender/receiver content or session keys.
             </p>
           </div>
 
-          <div className="bg-[#0C0E0B]/60 p-5 rounded-2xl border border-white/10 flex flex-col gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[#D97706]/20 border border-[#D97706]/40 flex items-center justify-center text-[#D97706] text-xl">
+          <div className="bg-[#060805] p-6 rounded-2xl border border-[#243022] flex flex-col gap-3.5">
+            <div className="w-11 h-11 rounded-xl bg-[#22C55E]/15 border border-[#22C55E]/30 flex items-center justify-center text-[#39FF14] text-2xl">
               <i className="fa-solid fa-memory"></i>
             </div>
-            <h3 className="font-bold text-white uppercase text-xs tracking-wider">Volatile RAM Queue</h3>
-            <p className="text-xs text-gray-400 leading-relaxed">
+            <h3 className="font-bold text-white uppercase text-sm md:text-base tracking-wider font-mono">Volatile RAM Queue</h3>
+            <p className="text-xs md:text-sm text-gray-300 leading-relaxed font-sans">
               Envelopes are held strictly in temporary RAM memory during socket delivery. Zero plaintext database persistence occurs at any time.
             </p>
           </div>
 
-          <div className="bg-[#0C0E0B]/60 p-5 rounded-2xl border border-white/10 flex flex-col gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[#5F7057]/20 border border-[#5F7057]/40 flex items-center justify-center text-[#D6C5B3] text-xl">
-              <i className="fa-solid fa-[#5F7057] fa-key"></i>
+          <div className="bg-[#060805] p-6 rounded-2xl border border-[#243022] flex flex-col gap-3.5">
+            <div className="w-11 h-11 rounded-xl bg-[#22C55E]/15 border border-[#22C55E]/30 flex items-center justify-center text-[#39FF14] text-2xl">
+              <i className="fa-solid fa-key"></i>
             </div>
-            <h3 className="font-bold text-white uppercase text-xs tracking-wider">No Private Key Storage</h3>
-            <p className="text-xs text-gray-400 leading-relaxed">
+            <h3 className="font-bold text-white uppercase text-sm md:text-base tracking-wider font-mono">No Private Key Storage</h3>
+            <p className="text-xs md:text-sm text-gray-300 leading-relaxed font-sans">
               User RSA-4096 private keys never touch the network. They remain sealed inside the client device vault encrypted with Argon2id.
             </p>
           </div>
         </div>
-      </div>
+      </BentoCard>
 
       {/* Interactive Handshake Protocol Flow Inspector */}
-      <div className="glass-panel p-6 md:p-8 rounded-3xl flex flex-col gap-6 border border-white/10 shadow-xl">
-        <div className="flex items-center justify-between border-b border-white/10 pb-4 flex-wrap gap-4">
+      <BentoCard hover={false} className="p-7 md:p-9 flex flex-col gap-6 shadow-xl">
+        <div className="flex items-center justify-between border-b border-[#243022] pb-4 flex-wrap gap-4">
           <div>
-            <h2 className="text-sm font-bold uppercase tracking-wider text-white flex items-center gap-2 font-mono">
-              <span className="inline-block w-1.5 h-3.5 bg-[#D97706]"></span> Interactive Handshake Protocol Inspector
+            <h2 className="text-base md:text-lg font-bold uppercase tracking-wider text-white flex items-center gap-2 font-mono">
+              <span className="inline-block w-2 h-4 bg-[#22C55E]"></span> Interactive Handshake Protocol Inspector
             </h2>
-            <p className="text-[10px] text-gray-400 font-sans mt-0.5">
+            <p className="text-xs text-gray-300 font-sans mt-0.5">
               Click through the WebSocket authentication stages to inspect live JSON payload exchanges.
             </p>
           </div>
 
           <button
             onClick={handleCopyFlow}
-            className="px-3.5 py-1.5 text-[9px] font-mono font-bold uppercase bg-white/5 hover:bg-[#D97706]/20 border border-white/10 text-[#D6C5B3] hover:text-white rounded-xl transition-all cursor-pointer flex items-center gap-1.5"
+            className="px-4 py-2 text-xs font-mono font-bold uppercase bg-[#22C55E]/15 hover:bg-[#22C55E] border border-[#22C55E]/40 text-[#39FF14] hover:text-black rounded-xl transition-all cursor-pointer flex items-center gap-2"
           >
-            <i className={`fa-solid ${copiedFlow ? 'fa-check text-green-400' : 'fa-copy'}`}></i>
+            <i className={`fa-solid ${copiedFlow ? 'fa-check text-black' : 'fa-copy text-[#39FF14]'}`}></i>
             <span>{copiedFlow ? 'COPIED JSON' : 'COPY JSON'}</span>
           </button>
         </div>
 
         {/* Step Selector Tabs */}
-        <div className="flex items-center gap-2 select-none">
+        <div className="flex flex-wrap items-center gap-2.5 select-none">
           {[
             { step: 1, label: 'Step 1: Auth Challenge' },
             { step: 2, label: 'Step 2: Auth Response' },
@@ -160,10 +163,10 @@ export default function AboutPage() {
             <button
               key={item.step}
               onClick={() => setFlowTab(item.step)}
-              className={`px-4 py-2 rounded-xl font-mono text-xs font-bold uppercase transition-all cursor-pointer border ${
+              className={`px-5 py-2.5 rounded-xl font-mono text-xs md:text-sm font-bold uppercase transition-all cursor-pointer border ${
                 flowTab === item.step
-                  ? 'bg-[#D97706] text-white border-[#D97706] shadow-tech-sm'
-                  : 'bg-[#0C0E0B]/60 text-gray-400 border-white/5 hover:text-white hover:bg-white/5'
+                  ? 'bg-[#22C55E] text-black border-[#39FF14] shadow-md'
+                  : 'bg-[#060805] text-gray-300 border-[#243022] hover:text-white hover:bg-[#141C13]'
               }`}
             >
               {item.label}
@@ -172,85 +175,81 @@ export default function AboutPage() {
         </div>
 
         {/* JSON Display Screen */}
-        <div className="bg-[#0C0E0B] border border-white/10 rounded-2xl p-5 font-mono text-xs text-gray-300 shadow-inner">
-          <div className="flex items-center justify-between text-[10px] text-[#7C8775] border-b border-white/10 pb-2 mb-3">
+        <div className="bg-[#060805] border border-[#243022] rounded-2xl p-5 font-mono text-xs md:text-sm text-gray-200 shadow-inner">
+          <div className="flex items-center justify-between text-xs text-[#7E927F] border-b border-[#243022] pb-2.5 mb-3 font-bold">
             <span>
               {flowTab === 1 ? 'SERVER -> CLIENT' : flowTab === 2 ? 'CLIENT -> SERVER' : 'SERVER -> CLIENT'}
             </span>
-            <span className="text-[#D97706] font-bold">
+            <span className="text-[#39FF14] font-bold">
               {flowTab === 1 ? 'AUTH_CHALLENGE' : flowTab === 2 ? 'AUTH_RESPONSE' : 'AUTH_SUCCESS'}
             </span>
           </div>
-          <pre className="overflow-x-auto leading-relaxed text-gray-300">
+          <pre className="overflow-x-auto leading-relaxed text-gray-200 font-mono">
             <code>{flowPayloads[flowTab]}</code>
           </pre>
         </div>
-      </div>
+      </BentoCard>
 
       {/* Developer Spotlight: Orientis Digital */}
-      <div className="glass-panel p-6 md:p-8 rounded-3xl flex flex-col md:flex-row gap-6 items-center border border-white/10 hover:border-[#D97706]/30 transition-all duration-300 shadow-xl">
-        <div className="w-24 h-24 bg-[#D97706]/10 border border-[#D97706]/30 rounded-2xl flex items-center justify-center overflow-hidden shrink-0 p-4 shadow-tech-sm">
+      <BentoCard className="p-7 md:p-9 flex flex-col md:flex-row gap-7 items-center shadow-xl">
+        <div className="w-24 h-24 bg-[#22C55E]/10 border border-[#22C55E]/30 rounded-2xl flex items-center justify-center overflow-hidden shrink-0 p-4 shadow-sm">
           <img src="/img/orientis-logo.png" alt="Orientis Digital Logo" className="w-full h-full object-contain" />
         </div>
-        <div className="flex-1 flex flex-col gap-2 text-left">
-          <span className="text-[10px] font-mono text-[#D97706] uppercase tracking-widest font-bold">// CORE DEVELOPER SPOTLIGHT</span>
-          <h3 className="font-extrabold text-white text-lg uppercase tracking-wider">Designed & Engineered by Orientis Digital</h3>
-          <p className="leading-relaxed font-sans text-xs md:text-sm text-gray-400">
+        <div className="flex-1 flex flex-col gap-2.5 text-left">
+          <span className="text-xs font-mono text-[#39FF14] uppercase tracking-widest font-bold">// CORE DEVELOPER SPOTLIGHT</span>
+          <h3 className="font-extrabold text-white text-lg md:text-xl uppercase tracking-wider font-mono">Designed &amp; Engineered by Orientis Digital</h3>
+          <p className="leading-relaxed font-sans text-xs md:text-sm text-gray-300">
             Orientis Digital builds modern digital infrastructure, secure communication protocols, and intelligent software systems. Vexta is engineered to enforce absolute metadata privacy and zero-trust delivery.
           </p>
 
-          <div className="flex flex-wrap items-center justify-between gap-4 mt-2 pt-3 border-t border-white/10">
-            <div className="flex items-center gap-2 font-mono text-[9px] text-[#7C8775]">
-              <span className="bg-white/5 border border-white/10 px-2 py-0.5 rounded text-gray-300">RSA-4096</span>
-              <span className="bg-white/5 border border-white/10 px-2 py-0.5 rounded text-gray-300">AES-256-GCM</span>
-              <span className="bg-white/5 border border-white/10 px-2 py-0.5 rounded text-gray-300">Argon2id</span>
+          <div className="flex flex-wrap items-center justify-between gap-4 mt-2 pt-3.5 border-t border-[#243022]">
+            <div className="flex items-center gap-2 font-mono text-[11px] text-[#7E927F]">
+              <span className="bg-[#060805] border border-[#243022] px-2.5 py-1 rounded-md text-gray-200 font-bold">RSA-4096</span>
+              <span className="bg-[#060805] border border-[#243022] px-2.5 py-1 rounded-md text-gray-200 font-bold">AES-256-GCM</span>
+              <span className="bg-[#060805] border border-[#243022] px-2.5 py-1 rounded-md text-gray-200 font-bold">Argon2id</span>
             </div>
 
             <a
               href="https://nexusec.space/"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-xs uppercase font-bold font-mono text-[#D97706] hover:text-white tracking-wider flex items-center gap-1.5 no-underline"
+              className="text-xs md:text-sm uppercase font-bold font-mono text-[#39FF14] hover:text-white tracking-wider flex items-center gap-1.5 no-underline"
             >
               <span>Visit Orientis Digital Website</span>
-              <i className="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+              <i className="fa-solid fa-arrow-up-right-from-square text-xs"></i>
             </a>
           </div>
         </div>
-      </div>
+      </BentoCard>
 
-      {/* ========================================================================= */}
-      {/* BUG REPORTING & SECURITY VULNERABILITY DISCLOSURE DESK */}
-      {/* ========================================================================= */}
-      <section id="report-issue" className="glass-panel p-6 md:p-8 rounded-3xl flex flex-col gap-6 border border-white/10 shadow-xl scroll-mt-28">
-        <div className="flex items-center justify-between border-b border-white/10 pb-4 flex-wrap gap-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-red-500/15 border border-red-500/30 flex items-center justify-center text-red-400 text-xl">
+      {/* BUG REPORTING & SECURITY DISCLOSURE DESK */}
+      <BentoCard id="report-issue" hover={false} className="p-7 md:p-9 flex flex-col gap-6 shadow-xl scroll-mt-28">
+        <div className="flex items-center justify-between border-b border-[#243022] pb-4 flex-wrap gap-4">
+          <div className="flex items-center gap-3.5">
+            <div className="w-12 h-12 rounded-xl bg-red-500/15 border border-red-500/30 flex items-center justify-center text-red-400 text-2xl">
               <i className="fa-solid fa-bug"></i>
             </div>
             <div>
-              <h2 className="text-base font-extrabold uppercase tracking-wider text-white font-mono">
-                Vulnerability Disclosure & Bug Reporting Desk
+              <h2 className="text-base md:text-lg font-extrabold uppercase tracking-wider text-white font-mono">
+                Vulnerability Disclosure &amp; Bug Reporting Desk
               </h2>
-              <p className="text-[10px] text-gray-400 font-sans">
+              <p className="text-xs text-gray-300 font-sans">
                 Found a protocol flaw, client glitch, or security anomaly? Submit a disclosure report to Orientis Digital engineers.
               </p>
             </div>
           </div>
-          <span className="bg-red-500/15 border border-red-500/30 text-red-400 px-3 py-1 rounded-lg text-[10px] font-mono font-bold uppercase">
-            RESPONSIBLE DISCLOSURE
-          </span>
+          <StatusBadge label="RESPONSIBLE DISCLOSURE" variant="red" />
         </div>
 
         {submittedTicket && (
-          <div className="p-4 border border-green-500/30 bg-green-500/10 text-green-400 rounded-2xl flex flex-col gap-2 font-mono text-xs animate-in fade-in duration-200">
-            <div className="flex items-center justify-between font-bold border-b border-green-500/20 pb-2">
+          <div className="p-5 border border-[#22C55E]/40 bg-[#22C55E]/10 text-[#39FF14] rounded-2xl flex flex-col gap-2 font-mono text-sm animate-in fade-in duration-200">
+            <div className="flex items-center justify-between font-bold border-b border-[#22C55E]/20 pb-2">
               <span className="flex items-center gap-2">
-                <i className="fa-solid fa-circle-check text-base"></i> REPORT TRANSMITTED OK
+                <i className="fa-solid fa-circle-check text-lg text-[#39FF14]"></i> REPORT TRANSMITTED OK
               </span>
-              <span>{submittedTicket.id}</span>
+              <span className="text-white">{submittedTicket.id}</span>
             </div>
-            <p className="text-[11px] font-sans text-gray-300 leading-relaxed">
+            <p className="text-xs md:text-sm font-sans text-gray-200 leading-relaxed">
               Your disclosure ticket has been encrypted and queued for review by the security response team.
             </p>
           </div>
@@ -261,13 +260,13 @@ export default function AboutPage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {/* Category */}
             <div className="flex flex-col gap-2">
-              <label className="text-[10px] font-mono font-bold uppercase text-[#D6C5B3] tracking-wider">
+              <label className="text-xs font-mono font-bold uppercase text-[#4ADE80] tracking-wider">
                 Report Category
               </label>
               <select
                 value={reportCategory}
                 onChange={(e) => setReportCategory(e.target.value)}
-                className="bg-[#0C0E0B] border border-white/10 rounded-xl p-3 font-mono text-xs text-gray-200 focus:outline-none focus:border-[#D97706]"
+                className="bg-[#060805] border border-[#243022] rounded-xl p-3.5 font-mono text-xs md:text-sm text-gray-200 focus:outline-none focus:border-[#22C55E]"
               >
                 <option value="bug">Software Bug Report</option>
                 <option value="security">Security Vulnerability (Zero-Day)</option>
@@ -278,13 +277,13 @@ export default function AboutPage() {
 
             {/* Severity */}
             <div className="flex flex-col gap-2">
-              <label className="text-[10px] font-mono font-bold uppercase text-[#D6C5B3] tracking-wider">
+              <label className="text-xs font-mono font-bold uppercase text-[#4ADE80] tracking-wider">
                 Severity Level
               </label>
               <select
                 value={reportSeverity}
                 onChange={(e) => setReportSeverity(e.target.value)}
-                className="bg-[#0C0E0B] border border-white/10 rounded-xl p-3 font-mono text-xs text-gray-200 focus:outline-none focus:border-[#D97706]"
+                className="bg-[#060805] border border-[#243022] rounded-xl p-3.5 font-mono text-xs md:text-sm text-gray-200 focus:outline-none focus:border-[#22C55E]"
               >
                 <option value="low">Low (Cosmetic / Typo)</option>
                 <option value="medium">Medium (Moderate Glitch)</option>
@@ -295,13 +294,13 @@ export default function AboutPage() {
 
             {/* Target Component */}
             <div className="flex flex-col gap-2">
-              <label className="text-[10px] font-mono font-bold uppercase text-[#D6C5B3] tracking-wider">
+              <label className="text-xs font-mono font-bold uppercase text-[#4ADE80] tracking-wider">
                 Affected Target
               </label>
               <select
                 value={reportTarget}
                 onChange={(e) => setReportTarget(e.target.value)}
-                className="bg-[#0C0E0B] border border-white/10 rounded-xl p-3 font-mono text-xs text-gray-200 focus:outline-none focus:border-[#D97706]"
+                className="bg-[#060805] border border-[#243022] rounded-xl p-3.5 font-mono text-xs md:text-sm text-gray-200 focus:outline-none focus:border-[#22C55E]"
               >
                 <option value="windows">Windows App (EXE / ZIP)</option>
                 <option value="android">Android App (APK)</option>
@@ -313,7 +312,7 @@ export default function AboutPage() {
 
           {/* Title / Summary */}
           <div className="flex flex-col gap-2">
-            <label className="text-[10px] font-mono font-bold uppercase text-[#D6C5B3] tracking-wider">
+            <label className="text-xs font-mono font-bold uppercase text-[#4ADE80] tracking-wider">
               Issue Summary / Title
             </label>
             <input
@@ -322,14 +321,14 @@ export default function AboutPage() {
               onChange={(e) => setReportTitle(e.target.value)}
               required
               placeholder="e.g. WebSocket re-connection fails after network interface change..."
-              className="bg-[#0C0E0B] border border-white/10 rounded-xl p-3 font-mono text-xs text-gray-200 focus:outline-none focus:border-[#D97706] placeholder:text-gray-600"
+              className="bg-[#060805] border border-[#243022] rounded-xl p-3.5 font-mono text-xs md:text-sm text-gray-200 focus:outline-none focus:border-[#22C55E] placeholder:text-[#7E927F]"
             />
           </div>
 
           {/* Details */}
           <div className="flex flex-col gap-2">
-            <label className="text-[10px] font-mono font-bold uppercase text-[#D6C5B3] tracking-wider">
-              Reproduction Steps & Log Traceback
+            <label className="text-xs font-mono font-bold uppercase text-[#4ADE80] tracking-wider">
+              Reproduction Steps &amp; Log Traceback
             </label>
             <textarea
               rows={4}
@@ -337,13 +336,13 @@ export default function AboutPage() {
               onChange={(e) => setReportDetails(e.target.value)}
               required
               placeholder="Provide exact steps to reproduce the issue, environment info, or relevant terminal output..."
-              className="bg-[#0C0E0B] border border-white/10 rounded-xl p-3 font-mono text-xs text-gray-200 focus:outline-none focus:border-[#D97706] placeholder:text-gray-600 leading-relaxed"
+              className="bg-[#060805] border border-[#243022] rounded-xl p-3.5 font-mono text-xs md:text-sm text-gray-200 focus:outline-none focus:border-[#22C55E] placeholder:text-[#7E927F] leading-relaxed"
             ></textarea>
           </div>
 
           {/* Optional Contact */}
           <div className="flex flex-col gap-2">
-            <label className="text-[10px] font-mono font-bold uppercase text-[#D6C5B3] tracking-wider">
+            <label className="text-xs font-mono font-bold uppercase text-[#4ADE80] tracking-wider">
               Contact Handle / PGP Key Fingerprint (Optional)
             </label>
             <input
@@ -351,20 +350,20 @@ export default function AboutPage() {
               value={reportContact}
               onChange={(e) => setReportContact(e.target.value)}
               placeholder="Optional email or public key fingerprint for follow-up verification..."
-              className="bg-[#0C0E0B] border border-white/10 rounded-xl p-3 font-mono text-xs text-gray-200 focus:outline-none focus:border-[#D97706] placeholder:text-gray-600"
+              className="bg-[#060805] border border-[#243022] rounded-xl p-3.5 font-mono text-xs md:text-sm text-gray-200 focus:outline-none focus:border-[#22C55E] placeholder:text-[#7E927F]"
             />
           </div>
 
           {/* Submit Button */}
           <button
             type="submit"
-            className="px-6 py-4 font-mono text-xs font-bold uppercase tracking-widest text-white bg-gradient-to-r from-red-600 to-[#D97706] hover:shadow-[0_0_20px_rgba(239,68,68,0.4)] rounded-xl transition-all duration-300 cursor-pointer text-center flex items-center justify-center gap-2 mt-2"
+            className="px-8 py-4 font-mono text-xs md:text-sm font-bold uppercase tracking-widest text-black bg-[#22C55E] hover:bg-[#39FF14] hover:shadow-[0_0_25px_rgba(57,255,20,0.5)] rounded-xl transition-all duration-300 cursor-pointer text-center flex items-center justify-center gap-2 mt-2 border border-[#39FF14]"
           >
-            <i className="fa-solid fa-paper-plane text-xs"></i>
+            <i className="fa-solid fa-paper-plane text-xs text-black"></i>
             <span>Submit Encrypted Disclosure Report</span>
           </button>
         </form>
-      </section>
+      </BentoCard>
     </div>
   );
 }
