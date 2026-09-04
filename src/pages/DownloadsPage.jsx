@@ -16,6 +16,7 @@ export default function DownloadsPage() {
     latestClientVersion,
     latestClientBuild,
     loading,
+    downloadApiBaseUrl,
   } = useApp();
 
   const [detectedOS, setDetectedOS] = useState('windows');
@@ -71,18 +72,22 @@ export default function DownloadsPage() {
       downloadFilename = `${downloadFilename}.apk`;
     }
 
+    const base = downloadApiBaseUrl || 'https://downloads.nexusec.space';
+    // For direct binary downloads, especially APKs on Android, point directly to the static file path
+    // ending with the extension. This prevents Android DownloadManager from deriving "api.zip"
+    // from an API redirect URL path segment (/api/v1/apps/...).
     const url =
       dl.url ||
-      (dl.platform_key && dl.version
-        ? `https://downloads.nexusec.space/api/v1/vexta/download/${dl.version}/${dl.platform_key}`
-        : `https://downloads.nexusec.space/api/v1/vexta/download/${dl.platform_key || 'windows'}`);
+      (downloadFilename && downloadFilename.includes('.')
+        ? `${base}/vexta/${downloadFilename}`
+        : dl.platform_key && dl.version
+        ? `${base}/api/v1/apps/vexta/download/${dl.version}/${dl.platform_key}`
+        : `${base}/api/v1/apps/vexta/download/${dl.platform_key || 'windows'}`);
 
     const link = document.createElement('a');
     link.href = url;
     link.setAttribute('download', downloadFilename);
-    if (isApk) {
-      link.setAttribute('type', 'application/vnd.android.package-archive');
-    }
+    link.setAttribute('target', '_blank');
     link.setAttribute('rel', 'noopener noreferrer');
     document.body.appendChild(link);
     link.click();

@@ -127,7 +127,7 @@ export function AppProvider({ children }) {
           build_number: buildNum,
           display_version: buildNum ? `${version} (Build ${buildNum})` : version,
           release_date: release.release_date || '',
-          platform_key: key.startsWith('windows') ? 'windows' : key.startsWith('linux') ? 'linux' : key.startsWith('macos') ? 'macos' : 'windows',
+          platform_key: key.startsWith('windows') ? 'windows' : key.startsWith('linux') ? 'linux' : key.startsWith('macos') ? 'macos' : key.startsWith('android') ? 'android' : 'windows',
           key: key,
           size: '15 MB',
           sha256: (release.checksums && (release.checksums[key + '_sha256'] || release.checksums.sha256)) || '',
@@ -183,7 +183,7 @@ export function AppProvider({ children }) {
 
       // 2. Fetch Historical Releases & Latest Downloads
       try {
-        let releasesRes = await fetch(`${DOWNLOAD_API_BASE}/api/v1/vexta/releases`);
+        let releasesRes = await fetch(`${DOWNLOAD_API_BASE}/api/v1/apps/vexta/releases`);
         let releasesData = await safeJsonParse(releasesRes);
 
         if (releasesData && releasesData.releases && releasesData.releases.length > 0) {
@@ -202,7 +202,7 @@ export function AppProvider({ children }) {
           setOlderDownloads(older);
         } else {
           // Fallback to /latest endpoint
-          const dlRes = await fetch(`${DOWNLOAD_API_BASE}/api/v1/vexta/latest`);
+          const dlRes = await fetch(`${DOWNLOAD_API_BASE}/api/v1/apps/vexta/releases/latest`);
           const dlData = await safeJsonParse(dlRes);
           if (dlData) {
             const ver = dlData.latest_version || '0.0.11';
